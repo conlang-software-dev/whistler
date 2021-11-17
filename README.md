@@ -20,13 +20,23 @@ The `synthesize` function internally calls `spline`, and then passes the results
 The settings are as follows (determined by the inputs to `fm-synthesis`):
 ```ts
 interface WhistleSynthesisSettings {
-    sampleRate: number; // Samples per second for both input and output.
-    phase?: number; // Initial phase offset. Defaults to zero.
-    base?: number; // The base, carrier, or fundamental frequency to be modulated. Defaults to zero.
-    start?: number; // Offset at which to begin reading data. Defaults to zero.
-    end?: number; // Offset at which to stop reading data. Defaults the the minimum of the length of the input buffers.
-    output?: FMOutputArray; // Optional pre-allocated buffer into which to write the generated samples.
-    voice?: (t: number) => number; // Waveform function. For best results, `voice` should have a natural period of 2Pi. Defaults to Math.sin(t).
+    // Samples per second for both input and output.
+    sampleRate: number;
+    // Initial phase offset. Defaults to zero.
+    phase?: number;
+    // The base, carrier, or fundamental frequency to be modulated. Defaults to zero.
+    base?: number;
+    // Offset at which to begin reading data. Defaults to zero.
+    start?: number;
+    // Offset at which to stop reading data. Defaults the the minimum of the length of the input buffers.
+    end?: number;
+    // Optional pre-allocated buffer into which to write the generated samples.
+    output?: FMOutputArray;
+    // Optional offset in the output buffer at which to start writing. Defaults to zero.
+    // This also applies to internally-allocated output buffers, and will increase their length.
+    offset?: number;
+    // Waveform function. For best results, `voice` should have a natural period of 2Pi, and a range of -1 to 1. Defaults to Math.sin.
+    voice?: ((t: number) => number) | 'sine' | 'square' | 'triangle' | 'sawtooth' | 'elliptical';
 }
 ```
 
