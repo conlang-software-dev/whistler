@@ -5,9 +5,9 @@ This package exports two functions:
 
 Spline
 ------
-`function spline(transitions: CurveInput, output?: CurveOutput, offset?: number): [CurveOutput, number];`
+`function spline(segments: CurveInput, output?: CurveOutput, offset?: number): [CurveOutput, number];`
 
-The `spline` function takes in a description of a frequency / amplitude curve in terms of a sequence of frequency transitions and outputs a writable `ArrayLike` object with interlaced [frequency, amplitude] data, along with a number indicating the next offset to be written to.
+The `spline` function takes in a description of a complete frequency / amplitude curve in terms of a sequence of segments of frequency & amplitude curves, represented in terms of segments of scaled and shifted sinusoids, and outputs a writable `ArrayLike` object with interlaced [frequency, amplitude] data, along with a number indicating the next offset to be written to.
 
 If an `output` writable `ArrayLike` is provided, the output data will be written there, beginning at the specified `offset` (which defaults to 0). An error is thrown if the provided output buffer is not large enough. If no pre-allocated `output` buffer is provided, a new `Float32Array` will be automatically allocated.
 
@@ -35,22 +35,46 @@ If an `output` writable `ArrayLike` is provided, the output data will be written
 Input Format
 ============
 
-`CurveInput` is an array with length greater than zero of `Transition` objects, which are defined as follows:
+`CurveInput` is an array of `Segment` objects, which are defined as follows:
 
 ```ts
+type Segment = {
+  f: SignalComponent; // Description of the frequency component.
+  a: SignalComponent; // Description of the amplitude component.
+  run: number;        // The number of samples to use for the this segment.
+}
+
+type SignalComponent = Transition | Contour | Constant;
+
 interface Transition {
-  sy: number;           // The starting frequency
-  ey: number;           // The ending frequency
-  run: number;          // The number of samples to use
-  amplitude?: number;   // The peak amplitude during this transition; defaults to 1
-  fadeIn: boolean;      // Whether or not the amplitude should rise from 0 at the start
-  fadeOut: boolean;     // Whether or not the amplitude should fall to 0 at the end
+  type: 'transition';
+  sy: number;     // Starting value of this segment.
+  ey: number;     // Ending value of this segment.
+  sclip?: number; // How much of the beginning of the curve,
+                  // starting at the lower (upper) extremum, to
+                  // clip off to achieve a sharper transition. 
+  eclip?: number; // How much of the end of the curve,
+                  // starting at the upper (lower) extremum, to
+                  // clip off to achieve a sharper transition. 
+}
+
+export interface Contour {
+  type: 'contour';
+  y: number;      // The starting and ending value of this segment.
+  a: number;      // The maximum amplitude by which to deviate from
+                  // the boundary value (positive or negative).
+  clip?: number;  // How much the clip off of the beginning and end
+                  // of the curve between minima (maxima) to
+                  // achieve sharper transitions.
+}
+
+export interface Constant {
+  type: 'constant';
+  y: number;  // The constant value to maintain during this segment.
 }
 ```
 
-Setting `sy` to zero indicates a period of silence, in which case all other properties except `run` become optional (and will be ignored).
-
-It is up to the client to ensure that the starting and ending frequencies of adjacent `Transitions` are compatible. Setting `sy == ey` will produce a constant level tone, and adjacent `Transitions` with mismatched frequencies will result in an instantaneous transition between them.
+By default, all types of curve segments will have slopes of zero at the boundaries. This makes it trivial to produce smooth transitions between segments--just make sure the y-values at adjacent segments match. Setting non-zero `clip`, `sclip`, or `eclip` values will change that, in which case you are responsible for your own discontinuities!
 
 Command Line Interface
 ======================

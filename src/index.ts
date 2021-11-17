@@ -1,14 +1,17 @@
 #!/usr/bin/env node
-import { Transition } from './transition';
+import { Transition, Contour, Constant, SignalComponent, Segment } from './segment';
 import { spline, CurveInput, CurveOutput } from './spline';
 import { fromInterlaced, FMSynthInterlacedInput, FMOutputArray } from 'fm-synthesis';
 
-export { Transition, spline, CurveInput, CurveOutput, FMOutputArray };
+export {
+  Transition, Contour, Constant, SignalComponent, Segment,
+  spline, CurveInput, CurveOutput, FMOutputArray,
+};
 
 export type WhistleSynthesisSettings = Omit<FMSynthInterlacedInput, 'data'>;
 
-export function synthesize(transitions: CurveInput, settings: WhistleSynthesisSettings) {
-  const [data,] = spline(transitions) as [Float32Array, number];
+export function synthesize(segments: CurveInput, settings: WhistleSynthesisSettings) {
+  const [data,] = spline(segments) as [Float32Array, number];
   const [output, offset] = fromInterlaced( { ...settings, data, output: settings.output ?? data });
   return [output === data ? data.subarray(0, data.length/2) : output, offset];
 }
@@ -42,18 +45,18 @@ async function main() {
       .help()
       .argv;
 
-    let transitions: CurveInput;
+    let segments: CurveInput;
     try {
       const data = fs.readFileSync(input ?? process.stdin.fd, 'utf-8');
-      transitions = JSON.parse(data);
-      if (!Array.isArray(transitions) || typeof transitions[0] !== 'object') { throw 0; }
+      segments = JSON.parse(data);
+      if (!Array.isArray(segments) || typeof segments[0] !== 'object') { throw 0; }
     } catch (_) {
       console.error("Input must be a JSON array containing at least one object value.");
       process.exit(1);
     }
 
     try {
-      const [PCM, ] = synthesize(transitions, { sampleRate });
+      const [PCM, ] = synthesize(segments, { sampleRate });
 
       WavEncoder.encode({
         sampleRate,
