@@ -33,7 +33,7 @@
     "fm-synthesis": "^1.0.3"
   },
   "bin": {
-    "whistler": "bin/index.js"
+    "whistler": "bin/cli.js"
   },
   "repository": {
     "type": "git",
