@@ -1,6 +1,8 @@
 # whistler
 A library and command line utility for synthesizing examples of whistled speech.
 
+`npm i whistle-synthesis`
+
 This package exports two functions:
 
 Spline

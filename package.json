@@ -1,5 +1,5 @@
 {
-  "name": "whistler",
+  "name": "whistle-synthesis",
   "version": "1.0.0",
   "description": "A synthesizer for whistled speech.",
   "main": "bin/index.js",
