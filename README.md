@@ -7,13 +7,13 @@ Spline
 ------
 `function spline(segments: CurveInput, output?: CurveOutput, offset?: number): [CurveOutput, number];`
 
-The `spline` function takes in a description of a complete frequency / amplitude curve in terms of a sequence of segments of frequency & amplitude curves, represented in terms of segments of scaled and shifted sinusoids and elliptical arcs, and outputs a writable `ArrayLike` object with interlaced [frequency, amplitude] data, along with a number indicating the next offset to be written to. Sinusoids and ellipses are chosen as the basic components because they guarantee constant boundary slopes (either horizontal or vertical) at the boundaries, regardless of how they are scaled, thus making it easy to produce smooth transitions between segments.
+The `spline` function takes in a description of a complete frequency / amplitude curve in terms of a sequence of segments of independently-controllable frequency & amplitude curves, represented in terms of segments of scaled and shifted sinusoids and elliptical arcs, and outputs a writable `ArrayLike` object with interlaced [frequency, amplitude] data, along with a number indicating the next offset to be written to. Sinusoids and ellipses are chosen as the basic components because they guarantee constant boundary slopes (either horizontal or vertical) at the boundaries, regardless of how they are scaled, thus making it easy to produce smooth transitions between segments.
 
 If an `output` writable `ArrayLike` is provided, the output data will be written there, beginning at the specified `offset` (which defaults to 0). An error is thrown if the provided output buffer is not large enough. If no pre-allocated `output` buffer is provided, a new `Float32Array` will be automatically allocated.
 
 Synthesize
 ----------
-`function synthesize(transitions: CurveInput, settings: WhistleSynthesisSettings): [ArrayLike<number>, number];`
+`function synthesize({ segments: CurveInput, settings: WhistleSynthesisSettings }: WhistleSynthesisArgs): [ArrayLike<number>, number];`
 
 The `synthesize` function internally calls `spline`, and then passes the results to the `fm-synthesis` package to produce PCM data, and returns a writable `ArrayLike` object containing the PCM data, along with a number indicating the next offset to be written to.
 
@@ -82,6 +82,8 @@ An `arcsine` transition will have up-vertical slopes at both boundaries if `sy <
 An `ellipse` contour will have an up-vertical starting boundary and down-vertical ending boundary when `a > 0` and a down-vertical starting boundary and up-vertical ending boundary when `a < 0`.
 
 The `concave` and `convex` transition curve types permit switching between horizontal and vertical boundary slopes using elliptical quarter arcs. If `sy < ey` (i.e., we are transitioning upwards), then a `concave` curve will start horizontal and transition to up-vertical, while a `convex` start up-vertical and transition to horizontal. If `sy > ey` (i.e., we are transitioning downwards), a `concave` curve will start down-vertical and transition to horizontal, while a `convex` curve will start horizontal and transition to down-vertical.
+
+For usage examples, see `src/test.ts`.
 
 Command Line Interface
 ======================

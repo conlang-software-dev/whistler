@@ -9,10 +9,15 @@ export {
 };
 
 export type WhistleSynthesisSettings = Omit<FMSynthInterlacedInput, 'data'>;
+export interface WhistleSynthesisArgs {
+  segments: CurveInput;
+  settings: WhistleSynthesisSettings;
+}
 
-export function synthesize(segments: CurveInput, settings: WhistleSynthesisSettings) {
+export function synthesize({ segments, settings }: WhistleSynthesisArgs): [ArrayLike<number>, number] {
   const [data,] = spline(segments) as [Float32Array, number];
-  const [output, offset] = fromInterlaced( { ...settings, data, output: settings.output ?? data });
+  const { output: buffer = data } = settings;
+  const [output, offset] = fromInterlaced( { ...settings, data, output: buffer });
   return [output === data ? data.subarray(0, data.length/2) : output, offset];
 }
 
@@ -41,13 +46,17 @@ async function main() {
         describe: 'Audio samples per second',
         type: 'number',
       })
-      .default({ sampleRate: 44100 })
+      .default({
+        sampleRate: 44100,
+        input: process.stdin.fd,
+        output: process.stdout.fd,
+      })
       .help()
       .argv;
 
     let segments: CurveInput;
     try {
-      const data = fs.readFileSync(input ?? process.stdin.fd, 'utf-8');
+      const data = fs.readFileSync(input, 'utf-8');
       segments = JSON.parse(data);
       if (!Array.isArray(segments) || typeof segments[0] !== 'object') { throw 0; }
     } catch (_) {
@@ -56,13 +65,13 @@ async function main() {
     }
 
     try {
-      const [PCM, ] = synthesize(segments, { sampleRate });
+      const [PCM, ] = synthesize({ segments, settings: { sampleRate } });
 
       WavEncoder.encode({
         sampleRate,
         channelData: [PCM as Float32Array],
       }).then((buffer: ArrayBuffer) => {
-        fs.writeFileSync(output ?? process.stdout.fd, new Uint8Array(buffer));
+        fs.writeFileSync(output, new Uint8Array(buffer));
       });
     } catch (e: any) {
       console.error(e.message);
