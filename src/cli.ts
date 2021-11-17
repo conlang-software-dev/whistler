@@ -13,7 +13,7 @@ function interpText(text: string, config: string, sampleRate: number, voice: Voi
     process.exit(1);
   }
   const synth = new Text2Formant(sys);
-  const [PCM, ] = synth.synthesize({ text, voice, settings: { sampleRate }});
+  const [PCM ] = synth.synthesize({ text, voice, settings: { sampleRate }});
   return PCM;
 }
 
@@ -27,7 +27,7 @@ function interpCurve(input: string, sampleRate: number) {
     process.exit(1);
   }
 
-  const [PCM, ] = synthesize({ segments, settings: { sampleRate } });
+  const [PCM ] = synthesize({ segments, settings: { sampleRate } });
   return PCM;
 }
 
@@ -35,7 +35,7 @@ function getPCM(argv: any): ArrayLike<number> {
   try {
     const data = fs.readFileSync(argv.input, 'utf-8');
 
-    switch(argv._[0]) {
+    switch (argv._[0]) {
       case 'text': {
         const voice: VoiceRange = {
           f: {
@@ -47,11 +47,11 @@ function getPCM(argv: any): ArrayLike<number> {
             center: argv.ac as number,
             shift: argv.as as number,
             scale: argv.am as number,
-          }
+          },
         };
-        return interpText(data, argv.config as any, argv.sampleRate as any, voice);
+        return interpText(data, argv.config as string, argv.sampleRate as number, voice);
       }
-      case 'curve': return interpCurve(data, argv.sampleRate as any);
+      case 'curve': return interpCurve(data, argv.sampleRate as number);
       default:
         console.error("Unrecognized command.");
         process.exit(1);
@@ -63,7 +63,7 @@ function getPCM(argv: any): ArrayLike<number> {
 }
 
 async function main() {
-  try{
+  try {
     const [WavEncoder, { default: yargs }, { hideBin }] = await Promise.all([
       import('wav-encoder'),
       import('yargs'),

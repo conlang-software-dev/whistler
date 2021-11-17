@@ -19,7 +19,7 @@ function interp(segment: Segment, output: CurveOutput, offset: number) {
 
 export function spline(segments: CurveInput, output?: CurveOutput, offset = 0): [CurveOutput, number] {
   const maxx = segments.reduce((acc, { run }) => acc + run, offset);
-  if(typeof output === 'undefined') { output = new Float32Array(2 * maxx); }
+  if (typeof output === 'undefined') { output = new Float32Array(2 * maxx); }
   else if (output.length < 2 * maxx) { throw new Error("Output has insufficient length"); }
   
   for (const segment of segments) {

@@ -4,7 +4,7 @@ import { synthesize } from ".";
 
 const sampleRate = 44100;
 
-const [PCM, ] = synthesize({
+const [PCM ] = synthesize({
   settings: { sampleRate },
   segments: [{
     f: {
@@ -18,7 +18,7 @@ const [PCM, ] = synthesize({
       a: 0.75,
     },
     run: sampleRate,
-  },{
+  }, {
     f: {
       type: 'transition',
       curve: 'convex',

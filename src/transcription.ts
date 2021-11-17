@@ -1,5 +1,5 @@
 import { CurveOutput } from '.';
-import { SignalComponent } from './segment';
+import { Segment, SignalComponent } from './segment';
 import { spline, CurveInput } from './spline';
 import { synthesize, WhistleSynthesisSettings } from './synthesize';
 
@@ -51,8 +51,9 @@ function wordsToLookup({ namedPronunciations, words }: TranscriptionSystem) : Wo
   if (typeof words !== 'undefined') {
     for (const [word, pron] of Object.entries(words)) {
       if (typeof pron === 'string') {
-        if (namedPronunciations.hasOwnProperty(pron)) {
-          wordMap.set(word, namedPronunciations[pron]);
+        const curve = namedPronunciations[pron];
+        if (curve) {
+          wordMap.set(word, curve);
         } else {
           throw new Error(`Could find named pronunciation "${pron}" for word "${word}"`);
         }
@@ -78,8 +79,9 @@ function graphemesToLookup({ namedPronunciations, graphemes }: TranscriptionSyst
         anteMap.set(ante, postMap);
       }
       if (typeof pron === 'string') {
-        if (namedPronunciations.hasOwnProperty(pron)) {
-          postMap.set(post, namedPronunciations[pron]);
+        const curve = namedPronunciations[pron];
+        if (curve) {
+          postMap.set(post, curve);
         } else {
           throw new Error(`Could find named pronunciation "${pron}" for grapheme "${grapheme}" in context "${ante}"_"${post}"`);
         }
@@ -93,11 +95,11 @@ function graphemesToLookup({ namedPronunciations, graphemes }: TranscriptionSyst
 
 class GreedyTokenizer {
   private graphemes: Set<string>;
-  constructor(graphemes: { [key: string]: any }) {
+  constructor(graphemes: { [key: string]: unknown }) {
     this.graphemes = new Set(Object.keys(graphemes));
   }
 
-  *tokenize(text: string) {
+  * tokenize(text: string) {
     const { graphemes } = this;
     const len = text.length;
     let i = 0;
@@ -136,10 +138,10 @@ export class Text2Formant {
     this.tok = new GreedyTokenizer(sys.graphemes);
   }
 
-  *transform(text: string, voice?: VoiceRange) {
+  * transform(text: string, voice?: VoiceRange): Generator<Segment, void, undefined> {
     const { wordBoundary, tok, wordMap, graphMap } = this;
     const chunks = wordBoundary ? text.split(wordBoundary) : [text];
-    const vmap = voice ? (s: CurveInput) => mapVoice(s, voice) : (s: CurveInput) => s;
+    const vmap: (s: CurveInput) => CurveInput = voice ? s => mapVoice(s, voice) : s => s;
     for (const chunk of chunks) {
       if (wordMap.has(chunk)) {
         yield * vmap(wordMap.get(chunk) as CurveInput);
@@ -166,11 +168,11 @@ export class Text2Formant {
     }
   }
 
-  spline({ text, voice, output }: { text: string, voice?: VoiceRange, output?: CurveOutput }) {
+  spline({ text, voice, output }: { text: string, voice?: VoiceRange, output?: CurveOutput }): [ArrayLike<number>, number] {
     return spline([...this.transform(text, voice)], output);
   }
 
-  synthesize({ text, voice, settings }: { text: string, voice?: VoiceRange, settings: WhistleSynthesisSettings }) {
+  synthesize({ text, voice, settings }: { text: string, voice?: VoiceRange, settings: WhistleSynthesisSettings }): [ArrayLike<number>, number] {
     return synthesize({
       settings,
       segments: [...this.transform(text, voice)],

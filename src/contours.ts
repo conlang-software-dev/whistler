@@ -14,7 +14,7 @@ function cosContour(t: number) {
 }
 
 function ellipseContour(t: number) {
-  return Math.sqrt(1 - (t * INVPI)**2);
+  return Math.sqrt(1 - (t * INVPI) ** 2);
 }
 
 export function getContourFn(run: number, { y, a, curve = 'sine', clip = 0 }: Contour): (t: number) => number {

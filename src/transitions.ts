@@ -18,16 +18,16 @@ function scaledArcSine(t: number) {
 }
 
 function concaveUp(t: number) {
-  return 1 - 2 * Math.sqrt(1 - ((t + Math.PI) * INVTWOPI)**2);
+  return 1 - 2 * Math.sqrt(1 - ((t + Math.PI) * INVTWOPI) ** 2);
 }
 function concaveDown(t: number) {
-  return 1 - 2 * Math.sqrt(1 - ((t - Math.PI) * INVTWOPI)**2);
+  return 1 - 2 * Math.sqrt(1 - ((t - Math.PI) * INVTWOPI) ** 2);
 }
 function convexUp(t: number) {
-  return 2 * Math.sqrt(1 - ((t - Math.PI) * INVTWOPI)**2) - 1;
+  return 2 * Math.sqrt(1 - ((t - Math.PI) * INVTWOPI) ** 2) - 1;
 }
 function convexDown(t: number) {
-  return 2 * Math.sqrt(1 - ((t + Math.PI) * INVTWOPI)**2) - 1;
+  return 2 * Math.sqrt(1 - ((t + Math.PI) * INVTWOPI) ** 2) - 1;
 }
 
 function selectTransition(sy: number, ey: number, curve: TransitionCurve) {
@@ -51,6 +51,6 @@ export function getTransitionFn(run: number, { sy, ey, curve = 'sine', sclip = 0
   const domain = ex - sx;
   const range = max - min;
   const c = domain / run;
-  const rise = (ey - sy)/(2 * range);
+  const rise = (ey - sy) / (2 * range);
   return t => rise * (curveFn(c * t + sx) - min) + sy;               
 }

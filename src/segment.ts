@@ -1,5 +1,5 @@
 import { getTransitionFn, Transition, TransitionCurve } from "./transitions";
-import { Contour, ContourCurve, getContourFn } from "./countours";
+import { Contour, ContourCurve, getContourFn } from "./contours";
 
 export { Transition, TransitionCurve, Contour, ContourCurve }
 
@@ -27,7 +27,7 @@ export function getComponentFn(run: number, c: SignalComponent): (t: number) => 
   }
 }
 
-export function getSegmentFns({ f, a, run }: Segment) {
+export function getSegmentFns({ f, a, run }: Segment): [(t: number) => number, (t: number) => number] {
   return [
     getComponentFn(run, f),
     getComponentFn(run, a),

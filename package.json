@@ -5,12 +5,38 @@
   "main": "bin/index.js",
   "types": "bin/index.d.ts",
   "files": [
-    "bin/*"
+    "bin/index.js",
+    "bin/index.d.ts",
+    "bin/cli.js",
+    "bin/cli.d.ts",
+    "bin/contours.js",
+    "bin/contours.d.ts",
+    "bin/segment.js",
+    "bin/segment.d.ts",
+    "bin/spline.js",
+    "bin/spline.d.ts",
+    "bin/synthesize.js",
+    "bin/synthesize.d.ts",
+    "bin/transcription.js",
+    "bin/transcription.d.ts",
+    "bin/transitions.js",
+    "bin/transitions.d.ts"
   ],
   "scripts": {
     "build": "tsc",
     "test": "tsc && node bin/test.js",
-    "prepare": "npm run build"
+    "lint": "eslint . --ext .ts",
+    "lint:fix": "eslint . --ext .ts --fix",
+    "m:cli": "jsmin -o min.js bin/cli.js && move min.js bin\\cli.js",
+    "m:contours": "jsmin -o min.js bin/contours.js && move min.js bin\\contours.js",
+    "m:index": "jsmin -o min.js bin/index.js && move min.js bin\\index.js",
+    "m:segment": "jsmin -o min.js bin/segment.js && move min.js bin\\segment.js",
+    "m:spline": "jsmin -o min.js bin/spline.js && move min.js bin\\spline.js",
+    "m:synthesize": "jsmin -o min.js bin/synthesize.js && move min.js bin\\synthesize.js",
+    "m:transcription": "jsmin -o min.js bin/transcription.js && move min.js bin\\transcription.js",
+    "m:transitions": "jsmin -o min.js bin/transitions.js && move min.js bin\\transitions.js",
+    "minify": "npm run m:cli && npm run m:contours && npm run m:index && npm run m:segment && npm run m:spline && npm run m:synthesize && npm run m:transcription && npm run m:transitions",
+    "prepare": "npm run build && npm run minify"
   },
   "author": "Logan R. Kearsley",
   "license": "MIT",
@@ -21,6 +47,7 @@
     "@typescript-eslint/eslint-plugin": "^4.9.1",
     "@typescript-eslint/parser": "^4.9.1",
     "eslint": "^7.15.0",
+    "jsmin": "^1.0.1",
     "ts-node": "^9.1.1",
     "typescript": "^4.1.2",
     "wav-encoder": "^1.3.0"
