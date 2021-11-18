@@ -40,7 +40,7 @@ function selectTransition(sy: number, ey: number, curve: TransitionCurve) {
   return sy < ey ? convexUp : convexDown;
 }
 
-export function getTransitionFn(run: number, { sy, ey, curve = 'sine', sclip = 0, eclip = 0 }: Transition): (t: number) => number {
+export function getTransitionFn(samples: number, { sy, ey, curve = 'sine', sclip = 0, eclip = 0 }: Transition): (t: number) => number {
   if (sy === ey) return _ => sy;
 
   const curveFn = selectTransition(sy, ey, curve);
@@ -50,7 +50,7 @@ export function getTransitionFn(run: number, { sy, ey, curve = 'sine', sclip = 0
   const max = curveFn(ex);
   const domain = ex - sx;
   const range = max - min;
-  const c = domain / run;
+  const c = domain / samples;
   const rise = (ey - sy) / (2 * range);
   return t => rise * (curveFn(c * t + sx) - min) + sy;               
 }

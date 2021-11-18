@@ -168,8 +168,10 @@ export class Text2Formant {
     }
   }
 
-  spline({ text, voice, output }: { text: string, voice?: VoiceRange, output?: CurveOutput }): [ArrayLike<number>, number] {
-    return spline([...this.transform(text, voice)], output);
+  spline({ text, sampleRate, voice, output }:
+    { text: string, sampleRate: number, voice?: VoiceRange, output?: CurveOutput }
+  ): [ArrayLike<number>, number] {
+    return spline([...this.transform(text, voice)], sampleRate, output);
   }
 
   synthesize({ text, voice, settings }: { text: string, voice?: VoiceRange, settings: WhistleSynthesisSettings }): [ArrayLike<number>, number] {

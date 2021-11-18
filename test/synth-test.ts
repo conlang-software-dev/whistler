@@ -17,7 +17,7 @@ const [PCM ] = synthesize({
       y: 0.25,
       a: 0.75,
     },
-    run: sampleRate,
+    run: 1000,
   }, {
     f: {
       type: 'transition',
@@ -30,7 +30,7 @@ const [PCM ] = synthesize({
       sy: 0.25,
       ey: 0.75,
     },
-    run: sampleRate,
+    run: 1000,
   }],
 });
 

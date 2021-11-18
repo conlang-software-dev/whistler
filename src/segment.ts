@@ -16,10 +16,10 @@ export type Segment = {
   run: number;
 }
 
-export function getComponentFn(run: number, c: SignalComponent): (t: number) => number {
+export function getComponentFn(samples: number, c: SignalComponent): (t: number) => number {
   switch (c.type) {
-    case 'transition': return getTransitionFn(run, c);
-    case 'contour': return getContourFn(run, c);
+    case 'transition': return getTransitionFn(samples, c);
+    case 'contour': return getContourFn(samples, c);
     case 'constant': {
       const a = c.y;
       return _ => a;
@@ -27,9 +27,9 @@ export function getComponentFn(run: number, c: SignalComponent): (t: number) => 
   }
 }
 
-export function getSegmentFns({ f, a, run }: Segment): [(t: number) => number, (t: number) => number] {
+export function getSegmentFns(samples: number, f: SignalComponent, a: SignalComponent): [(t: number) => number, (t: number) => number] {
   return [
-    getComponentFn(run, f),
-    getComponentFn(run, a),
+    getComponentFn(samples, f),
+    getComponentFn(samples, a),
   ];
 }
