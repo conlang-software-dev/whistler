@@ -1,6 +1,6 @@
 import fs from 'fs';
 import WavEncoder from 'wav-encoder'; 
-import { synthesize } from ".";
+import { synthesize } from "../src";
 
 const sampleRate = 44100;
 
@@ -33,6 +33,8 @@ const [PCM ] = synthesize({
     run: sampleRate,
   }],
 });
+
+fs.writeFileSync('test.pcm', new Uint8Array((PCM as Float32Array).buffer));
 
 WavEncoder.encode({
   sampleRate,
