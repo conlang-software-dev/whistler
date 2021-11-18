@@ -7,7 +7,7 @@ This package exports three free functions and a class:
 
 Spline
 ------
-`function spline(segments: CurveInput, output?: CurveOutput, offset?: number): [CurveOutput, number];`
+`function spline(segments: CurveInput, sampleRate: number, output?: CurveOutput, offset?: number): [CurveOutput, number];`
 
 The `spline` function takes in a description of a complete frequency / amplitude curve in terms of a sequence of segments of independently-controllable frequency & amplitude curves, represented in terms of segments of scaled and shifted sinusoids and elliptical arcs, and outputs a writable `ArrayLike` object with interlaced [frequency, amplitude] data, along with a number indicating the next offset to be written to. Sinusoids and ellipses are chosen as the basic components because they guarantee constant boundary slopes (either horizontal or vertical) at the boundaries, regardless of how they are scaled, thus making it easy to produce smooth transitions between segments.
 
@@ -88,12 +88,13 @@ class Text2Formant {
     // Generate interlaced frequency and amplitude data from text.
     spline(args: {
         text: string;
+        sampleRate: number,
         voice?: VoiceRange;
         output?: CurveOutput;
     }): [ArrayLike<number>, number];
 
     // Generate PCM data directly from text.
-    synthesize({ text, voice, settings }: {
+    synthesize(args: {
         text: string;
         voice?: VoiceRange;
         settings: WhistleSynthesisSettings;
@@ -110,7 +111,7 @@ Curve Input Format
 type Segment = {
   f: SignalComponent; // Description of the frequency component.
   a: SignalComponent; // Description of the amplitude component.
-  run: number;        // The number of samples to use for the this segment.
+  run: number;        // The duration of this segment in milliseconds.
 }
 
 type SignalComponent = Transition | Contour | Constant;
@@ -152,8 +153,6 @@ An `ellipse` contour will have an up-vertical starting boundary and down-vertica
 
 The `concave` and `convex` transition curve types permit switching between horizontal and vertical boundary slopes using elliptical quarter arcs. If `sy < ey` (i.e., we are transitioning upwards), then a `concave` curve will start horizontal and transition to up-vertical, while a `convex` start up-vertical and transition to horizontal. If `sy > ey` (i.e., we are transitioning downwards), a `concave` curve will start down-vertical and transition to horizontal, while a `convex` curve will start horizontal and transition to down-vertical.
 
-For usage examples, see `src/test.ts`.
-
 Acoustic Models
 ===============
 
@@ -166,20 +165,44 @@ interface AcousticModel {
 
   // Defines named curves that may be re-used as the pronunciations
   // of multiple different words or contextual graphemes.
-  namedPronunciations?: { [name: string]: CurveInput };
+  // Named curves can themselves include other names of curves
+  // to include as sub-components, or refer to other named curves
+  // as aliases.
+  namedPronunciations?: { [name: string]: (Segment|string)[] | string };
 
   // Defines special words with idiomatic pronunciations.
   words?: { [word: string]: CurveInput | string };
 
   // The only required field; defines graphemes and how they
   // are pronounced in all possible contexts.
-  graphemes: { [grapheme: string]: ContextualPronunciation[] };
+  graphemes: { 
+    [grapheme: string]: {
+      // The optional 'elsewhere' field describes
+      // a generic pronunciation to insert when
+      // a context that has not been specifically
+      // encoded in the model is encountered.
+      elsewhere?: (Segment|string)[] | string;
+
+      // A list of contexts in which this grapheme
+      // may appear, along with its pronunciations
+      // in those contexts.
+      contexts: ContextualPronunciation[];
+    };
+  };
 }
 
 interface ContextualPronunciation {
-  ante: string; // Specifies the preceding context grapheme (or empty string) for this pronunciation.
-  post: string; // Specifies the following context grapheme (or empty string) for this pronunciation.
-  pron: CurveInput | string; // Specifies the pronunciation to be used in this context.
+  // Specifies the preceding and following
+  // context graphemes (or empty strings)
+  // for this pronunciation.
+  con: [pre: string, post: string];
+
+  // Specifies the pronunciation for this context.
+  // Omitting this field indicates that the
+  // grapheme is realized entirely by its effects
+  // on its neighbors, and takes no time of its own
+  // in this context.
+  pron?: (Segment|string)[] | string;
 }
 ```
 
@@ -205,3 +228,8 @@ The additional parameters specify `VoiceRange` fields:
 * `fc` and `ac` specify the frequency and amplitude centers, and default to zero.
 * `fs` and `as` specify the frequency and amplitude shifts, and default to zero.
 * `fm` and `am` specify the frequency and amplitude scales (multiples), and default to one.
+
+Usage Examples
+==============
+
+See the `/test` folder for basic usage examples. `/test/synth-test.ts` has a short example of manually-constructed `CurveInput` and call to the `synthesize` function. `/test/fixtures/model1.ts` contains a (not terribly realistic) example `AcousticModel`, which is used to synthesize audio from text in `/test/text-test.ts`.

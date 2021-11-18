@@ -36,11 +36,13 @@ const segments: CurveInput = [{
 describe("Curve Synthesis Test", function() {
   this.timeout(0);
   it("Should synthesize PCM data", () => {
-    const buffer = fs.readFileSync(path.join(__dirname, "fixtures/synth1.pcm"));
+    const pcmFile = path.join(__dirname, "fixtures/synth1.pcm");
+    const buffer = fs.readFileSync(pcmFile);
     const a = new Uint8Array(buffer);
-    const [PCM] = synthesize({ segments,settings: { sampleRate } });
+    const [PCM] = synthesize({ segments, settings: { sampleRate } });
     const b = new Uint8Array((PCM as Float32Array).buffer);
-    
+    //fs.writeFileSync(pcmFile, b);
+
     WavEncoder.encode({
       sampleRate,
       channelData: [PCM as Float32Array],

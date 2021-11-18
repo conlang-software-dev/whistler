@@ -34,7 +34,7 @@ const model: AcousticModel = {
     silence: [{ 
       f: { type: 'constant', y: 0 },
       a: { type: 'constant', y: 0 },
-      run: 10,
+      run: 166,
     }],
 
     // t
@@ -46,7 +46,7 @@ const model: AcousticModel = {
         ey: H_LOCUS,
       },
       a: { type: 'constant', y: 1 },
-      run: 20,
+      run: 200,
     }],
     t2a: [{ 
       f: {
@@ -56,7 +56,7 @@ const model: AcousticModel = {
         ey: A_LOCUS,
       },
       a: { type: 'constant', y: 1 },
-      run: 20,
+      run: 200,
     }],
     i2t: [{ 
       f: {
@@ -66,7 +66,7 @@ const model: AcousticModel = {
         ey: H_LOCUS,
       },
       a: { type: 'constant', y: 1 },
-      run: 20,
+      run: 200,
     }],
     t2i: [{ 
       f: {
@@ -76,7 +76,7 @@ const model: AcousticModel = {
         ey: I_LOCUS,
       },
       a: { type: 'constant', y: 1 },
-      run: 20,
+      run: 200,
     }],
     // d
     a2d: [{ 
@@ -89,7 +89,7 @@ const model: AcousticModel = {
         type: 'transition',
         sy: 1, ey: 0,
       },
-      run: 25,
+      run: 250,
     }],
     d2a: [{ 
       f: {
@@ -101,7 +101,7 @@ const model: AcousticModel = {
         type: 'transition',
         sy: 0, ey: 1,
       },
-      run: 25,
+      run: 250,
     }],
     i2d: [{ 
       f: {
@@ -113,7 +113,7 @@ const model: AcousticModel = {
         type: 'transition',
         sy: 1, ey: 0,
       },
-      run: 25,
+      run: 250,
     }],
     d2i: [{ 
       f: {
@@ -125,7 +125,7 @@ const model: AcousticModel = {
         type: 'transition',
         sy: 0, ey: 1,
       },
-      run: 25,
+      run: 250,
     }],
     // n
     a2n: [{ 
@@ -139,7 +139,7 @@ const model: AcousticModel = {
         type: 'transition',
         sy: 1, ey: 0,
       },
-      run: 20,
+      run: 200,
     }],
     n2a: [{ 
       f: {
@@ -152,7 +152,7 @@ const model: AcousticModel = {
         type: 'transition',
         sy: 0, ey: 1,
       },
-      run: 20,
+      run: 200,
     }],
     i2n: [{ 
       f: {
@@ -165,7 +165,7 @@ const model: AcousticModel = {
         type: 'transition',
         sy: 1, ey: 0,
       },
-      run: 20,
+      run: 200,
     }],
     n2i: [{ 
       f: {
@@ -178,11 +178,12 @@ const model: AcousticModel = {
         type: 'transition',
         sy: 0, ey: 1,
       },
-      run: 20,
+      run: 200,
     }],
     
     // k
     k: ['silence', 'silence', 'silence'],
+
     // g
     a2g: [{
       f: { type: 'constant', y: A_LOCUS },
@@ -190,7 +191,7 @@ const model: AcousticModel = {
         type: 'transition',
         sy: 1, ey: 0,
       },
-      run: 25,
+      run: 250,
     }],
     g2a: [{
       f: { type: 'constant', y: A_LOCUS },
@@ -198,7 +199,7 @@ const model: AcousticModel = {
         type: 'transition',
         sy: 0, ey: 1,
       },
-      run: 25,
+      run: 250,
     }],
     i2g: [{
       f: { type: 'constant', y: I_LOCUS },
@@ -206,7 +207,7 @@ const model: AcousticModel = {
         type: 'transition',
         sy: 1, ey: 0,
       },
-      run: 25,
+      run: 250,
     }],
     g2i: [{
       f: { type: 'constant', y: I_LOCUS },
@@ -214,7 +215,7 @@ const model: AcousticModel = {
         type: 'transition',
         sy: 0, ey: 1,
       },
-      run: 25,
+      run: 250,
     }],
     // ng
     a2ng: [{
@@ -223,7 +224,7 @@ const model: AcousticModel = {
         type: 'transition',
         sy: 1, ey: 0,
       },
-      run: 20,
+      run: 200,
     }],
     ng2a: [{
       f: { type: 'constant', y: A_LOCUS },
@@ -231,7 +232,7 @@ const model: AcousticModel = {
         type: 'transition',
         sy: 0, ey: 1,
       },
-      run: 20,
+      run: 200,
     }],
     i2ng: [{
       f: { type: 'constant', y: I_LOCUS },
@@ -239,7 +240,7 @@ const model: AcousticModel = {
         type: 'transition',
         sy: 1, ey: 0,
       },
-      run: 20,
+      run: 200,
     }],
     ng2i: [{
       f: { type: 'constant', y: I_LOCUS },
@@ -247,7 +248,7 @@ const model: AcousticModel = {
         type: 'transition',
         sy: 0, ey: 1,
       },
-      run: 20,
+      run: 200,
     }],
 
     // p
@@ -259,7 +260,7 @@ const model: AcousticModel = {
         ey: L_LOCUS,
       },
       a: { type: 'constant', y: 1 },
-      run: 20,
+      run: 200,
     }],
     p2a: [{ 
       f: {
@@ -269,7 +270,7 @@ const model: AcousticModel = {
         ey: A_LOCUS,
       },
       a: { type: 'constant', y: 1 },
-      run: 20,
+      run: 200,
     }],
     i2p: [{ 
       f: {
@@ -279,7 +280,7 @@ const model: AcousticModel = {
         ey: L_LOCUS,
       },
       a: { type: 'constant', y: 1 },
-      run: 20,
+      run: 200,
     }],
     p2i: [{ 
       f: {
@@ -289,7 +290,7 @@ const model: AcousticModel = {
         ey: I_LOCUS,
       },
       a: { type: 'constant', y: 1 },
-      run: 20,
+      run: 200,
     }],
     // b
     a2b: [{ 
@@ -302,7 +303,7 @@ const model: AcousticModel = {
         type: 'transition',
         sy: 1, ey: 0,
       },
-      run: 25,
+      run: 250,
     }],
     b2a: [{ 
       f: {
@@ -314,7 +315,7 @@ const model: AcousticModel = {
         type: 'transition',
         sy: 0, ey: 1,
       },
-      run: 25,
+      run: 250,
     }],
     i2b: [{ 
       f: {
@@ -326,7 +327,7 @@ const model: AcousticModel = {
         type: 'transition',
         sy: 1, ey: 0,
       },
-      run: 25,
+      run: 250,
     }],
     b2i: [{ 
       f: {
@@ -338,7 +339,7 @@ const model: AcousticModel = {
         type: 'transition',
         sy: 0, ey: 1,
       },
-      run: 25,
+      run: 250,
     }],
     // m
     a2m: [{
@@ -352,7 +353,7 @@ const model: AcousticModel = {
         type: 'transition',
         sy: 1, ey: 0,
       },
-      run: 20,
+      run: 200,
     }],
     m2a: [{ 
       f: {
@@ -365,7 +366,7 @@ const model: AcousticModel = {
         type: 'transition',
         sy: 0, ey: 1,
       },
-      run: 20,
+      run: 200,
     }],
     i2m: [{ 
       f: {
@@ -378,7 +379,7 @@ const model: AcousticModel = {
         type: 'transition',
         sy: 1, ey: 0,
       },
-      run: 20,
+      run: 200,
     }],
     m2i: [{ 
       f: {
@@ -391,7 +392,7 @@ const model: AcousticModel = {
         type: 'transition',
         sy: 0, ey: 1,
       },
-      run: 20,
+      run: 200,
     }],
   },
   graphemes: {
@@ -399,7 +400,7 @@ const model: AcousticModel = {
       elsewhere: [{
         f: { type: 'constant', y: A_LOCUS },
         a: { type: 'constant', y: 1 },
-        run: 50,
+        run: 200,
       }],
       contexts: [
         { con: ['t', 't'] },
@@ -483,13 +484,13 @@ const model: AcousticModel = {
         { con: ['m', 'p'] },
         { con: ['m', 'b'] },
         { con: ['m', 'm'] },
-      ]
+      ],
     },
     i: {
       elsewhere: [{
         f: { type: 'constant', y: I_LOCUS },
         a: { type: 'constant', y: 1 },
-        run: 50,
+        run: 200,
       }],
       contexts: [
         { con: ['t', 't'] },
@@ -573,42 +574,42 @@ const model: AcousticModel = {
         { con: ['m', 'p'] },
         { con: ['m', 'b'] },
         { con: ['m', 'm'] },
-      ]
+      ],
     },
     t: {
       contexts: [
-        { con: ['a', 'a'], pron: ['a2t','silence','t2a'] },
-        { con: ['a', 'i'], pron: ['a2t','silence','t2i'] },
-        { con: ['i', 'i'], pron: ['i2t','silence','t2i'] },
-        { con: ['i', 'a'], pron: ['i2t','silence','t2a'] },
+        { con: ['a', 'a'], pron: ['a2t', 'silence', 't2a'] },
+        { con: ['a', 'i'], pron: ['a2t', 'silence', 't2i'] },
+        { con: ['i', 'i'], pron: ['i2t', 'silence', 't2i'] },
+        { con: ['i', 'a'], pron: ['i2t', 'silence', 't2a'] },
         { con: ['', 'a'],  pron: 't2a' },
-        { con: ['a', ''],  pron: 'a2t' },
+        { con: ['a', ''],  pron: ['a2t', 'silence'] },
         { con: ['', 'i'],  pron: 't2i' },
-        { con: ['i', ''],  pron: 'i2t' },
+        { con: ['i', ''],  pron: ['i2t', 'silence'] },
       ],
     },
     d: {
       contexts: [
-        { con: ['a', 'a'], pron: ['a2d','d2a'] },
-        { con: ['a', 'i'], pron: ['a2d','d2i'] },
-        { con: ['i', 'i'], pron: ['i2d','d2i'] },
-        { con: ['i', 'a'], pron: ['i2d','d2a'] },
+        { con: ['a', 'a'], pron: ['a2d', 'd2a'] },
+        { con: ['a', 'i'], pron: ['a2d', 'd2i'] },
+        { con: ['i', 'i'], pron: ['i2d', 'd2i'] },
+        { con: ['i', 'a'], pron: ['i2d', 'd2a'] },
         { con: ['', 'a'],  pron: 'd2a' },
-        { con: ['a', ''],  pron: 'a2d' },
+        { con: ['a', ''],  pron: ['a2d', 'silence'] },
         { con: ['', 'i'],  pron: 'd2i' },
-        { con: ['i', ''],  pron: 'i2d' },
+        { con: ['i', ''],  pron: ['i2d', 'silence'] },
       ],
     },
     n: {
       contexts: [
-        { con: ['a', 'a'], pron: ['a2n','silence','n2a'] },
-        { con: ['a', 'i'], pron: ['a2n','silence','n2i'] },
-        { con: ['i', 'i'], pron: ['i2n','silence','n2i'] },
-        { con: ['i', 'a'], pron: ['i2n','silence','n2a'] },
+        { con: ['a', 'a'], pron: ['a2n', 'silence', 'n2a'] },
+        { con: ['a', 'i'], pron: ['a2n', 'silence', 'n2i'] },
+        { con: ['i', 'i'], pron: ['i2n', 'silence', 'n2i'] },
+        { con: ['i', 'a'], pron: ['i2n', 'silence', 'n2a'] },
         { con: ['', 'a'],  pron: 'n2a' },
-        { con: ['a', ''],  pron: 'a2n' },
+        { con: ['a', ''],  pron: ['a2n', 'silence'] },
         { con: ['', 'i'],  pron: 'n2i' },
-        { con: ['i', ''],  pron: 'i2n' },
+        { con: ['i', ''],  pron: ['i2n', 'silence'] },
       ],
     },
     k: {
@@ -617,65 +618,65 @@ const model: AcousticModel = {
     },
     g: {
       contexts: [
-        { con: ['a', 'a'], pron: ['a2g','g2a'] },
-        { con: ['a', 'i'], pron: ['a2g','g2i'] },
-        { con: ['i', 'i'], pron: ['i2g','g2i'] },
-        { con: ['i', 'a'], pron: ['i2g','g2a'] },
+        { con: ['a', 'a'], pron: ['a2g', 'g2a'] },
+        { con: ['a', 'i'], pron: ['a2g', 'g2i'] },
+        { con: ['i', 'i'], pron: ['i2g', 'g2i'] },
+        { con: ['i', 'a'], pron: ['i2g', 'g2a'] },
         { con: ['', 'a'],  pron: 'g2a' },
-        { con: ['a', ''],  pron: 'a2g' },
+        { con: ['a', ''],  pron: ['a2g', 'silence'] },
         { con: ['', 'i'],  pron: 'g2i' },
-        { con: ['i', ''],  pron: 'i2g' },
+        { con: ['i', ''],  pron: ['i2g', 'silence'] },
       ],
     },
     ng: {
       contexts: [
-        { con: ['a', 'a'], pron: ['a2ng','silence','ng2a'] },
-        { con: ['a', 'i'], pron: ['a2ng','silence','ng2i'] },
-        { con: ['i', 'i'], pron: ['i2ng','silence','ng2i'] },
-        { con: ['i', 'a'], pron: ['i2ng','silence','ng2a'] },
+        { con: ['a', 'a'], pron: ['a2ng', 'silence', 'ng2a'] },
+        { con: ['a', 'i'], pron: ['a2ng', 'silence', 'ng2i'] },
+        { con: ['i', 'i'], pron: ['i2ng', 'silence', 'ng2i'] },
+        { con: ['i', 'a'], pron: ['i2ng', 'silence', 'ng2a'] },
         { con: ['', 'a'],  pron: 'ng2a' },
-        { con: ['a', ''],  pron: 'a2ng' },
+        { con: ['a', ''],  pron: ['a2ng', 'silence'] },
         { con: ['', 'i'],  pron: 'ng2i' },
-        { con: ['i', ''],  pron: 'i2ng' },
+        { con: ['i', ''],  pron: ['i2ng', 'silence'] },
       ],
     },
     p: {
       contexts: [
-        { con: ['a', 'a'], pron: ['a2p','silence','p2a'] },
-        { con: ['a', 'i'], pron: ['a2p','silence','p2i'] },
-        { con: ['i', 'i'], pron: ['i2p','silence','p2i'] },
-        { con: ['i', 'a'], pron: ['i2p','silence','p2a'] },
+        { con: ['a', 'a'], pron: ['a2p', 'silence', 'p2a'] },
+        { con: ['a', 'i'], pron: ['a2p', 'silence', 'p2i'] },
+        { con: ['i', 'i'], pron: ['i2p', 'silence', 'p2i'] },
+        { con: ['i', 'a'], pron: ['i2p', 'silence', 'p2a'] },
         { con: ['', 'a'],  pron: 'p2a' },
-        { con: ['a', ''],  pron: 'a2p' },
+        { con: ['a', ''],  pron: ['a2p', 'silence'] },
         { con: ['', 'i'],  pron: 'p2i' },
-        { con: ['i', ''],  pron: 'i2p' },
+        { con: ['i', ''],  pron: ['i2p', 'silence'] },
       ],
     },
     b: {
       contexts: [
-        { con: ['a', 'a'], pron: ['a2b','b2a'] },
-        { con: ['a', 'i'], pron: ['a2b','b2i'] },
-        { con: ['i', 'i'], pron: ['i2b','b2i'] },
-        { con: ['i', 'a'], pron: ['i2b','b2a'] },
+        { con: ['a', 'a'], pron: ['a2b', 'b2a'] },
+        { con: ['a', 'i'], pron: ['a2b', 'b2i'] },
+        { con: ['i', 'i'], pron: ['i2b', 'b2i'] },
+        { con: ['i', 'a'], pron: ['i2b', 'b2a'] },
         { con: ['', 'a'],  pron: 'b2a' },
-        { con: ['a', ''],  pron: 'a2b' },
+        { con: ['a', ''],  pron: ['a2b', 'silence'] },
         { con: ['', 'i'],  pron: 'b2i' },
-        { con: ['i', ''],  pron: 'i2b' },
+        { con: ['i', ''],  pron: ['i2b', 'silence'] },
       ],
     },
     m: {
       contexts: [
-        { con: ['a', 'a'], pron: ['a2m','silence','m2a'] },
-        { con: ['a', 'i'], pron: ['a2m','silence','m2i'] },
-        { con: ['i', 'i'], pron: ['i2m','silence','m2i'] },
-        { con: ['i', 'a'], pron: ['i2m','silence','m2a'] },
+        { con: ['a', 'a'], pron: ['a2m', 'silence', 'm2a'] },
+        { con: ['a', 'i'], pron: ['a2m', 'silence', 'm2i'] },
+        { con: ['i', 'i'], pron: ['i2m', 'silence', 'm2i'] },
+        { con: ['i', 'a'], pron: ['i2m', 'silence', 'm2a'] },
         { con: ['', 'a'],  pron: 'm2a' },
-        { con: ['a', ''],  pron: 'a2m' },
+        { con: ['a', ''],  pron: ['a2m', 'silence'] },
         { con: ['', 'i'],  pron: 'm2i' },
-        { con: ['i', ''],  pron: 'i2m' },
+        { con: ['i', ''],  pron: ['i2m', 'silence'] },
       ],
     },
-  }
+  },
 };
 
 export default model;

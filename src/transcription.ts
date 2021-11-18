@@ -10,11 +10,11 @@ export interface ContextualPronunciation {
 
 export interface AcousticModel {
   wordBoundary?: string | RegExp;
-  words?: { [key: string]: CurveInput | string };
-  namedPronunciations?: { [key: string]: (Segment|string)[] };
+  words?: { [key: string]: (Segment|string)[] | string };
+  namedPronunciations?: { [key: string]: (Segment|string)[] | string };
   graphemes: { 
     [key: string]: {
-      elsewhere?: CurveInput | string;
+      elsewhere?: (Segment|string)[] | string;
       contexts: ContextualPronunciation[];
     };
   };
@@ -50,10 +50,10 @@ export function mapVoice(segments: CurveInput, voice: VoiceRange): CurveInput {
 
 function resolvePron(
   name: (Segment|string)[] | string,
-  namedProns: { [key: string]: (Segment|string)[] },
+  namedProns: { [key: string]: (Segment|string)[] | string },
   seen = new Set<string>(),
 ): CurveInput | string {
-  if (typeof name === 'string'){ 
+  if (typeof name === 'string') { 
     if (seen.has(name)) {
       throw new Error(`Could not resolve recursive name "${name}".`);
     }
@@ -99,15 +99,17 @@ type PronLookup = Map<string, { elsewhere?: CurveInput, contexts: Map<string, Ma
 
 function graphemesToLookup({ namedPronunciations = {}, graphemes }: AcousticModel): PronLookup {
   const graphMap: PronLookup = new Map();
-  for (let [grapheme, { elsewhere, contexts }] of Object.entries(graphemes)) {
-    if (typeof elsewhere !== 'undefined') {
-      elsewhere = resolvePron(elsewhere, namedPronunciations);
-      if (typeof elsewhere === 'string') {
-        throw new Error(`Could find named pronunciation "${elsewhere}" for grapheme "${grapheme}" in 'elsewhere' context.`);
-      }
+  for (const [grapheme, { elsewhere, contexts }] of Object.entries(graphemes)) {
+    const elsePron = (typeof elsewhere !== 'undefined') ?
+      resolvePron(elsewhere, namedPronunciations) : void 0;
+    if (typeof elsePron === 'string') {
+      throw new Error(`Could find named pronunciation "${elsePron}" for grapheme "${grapheme}" in 'elsewhere' context.`);
     }
     const anteMap = new Map<string, Map<string, CurveInput>>();
-    graphMap.set(grapheme, { elsewhere, contexts: anteMap });
+    graphMap.set(grapheme, {
+      elsewhere: elsePron,
+      contexts: anteMap,
+    });
     for (const { con: [ante, post], pron } of contexts) {
       let postMap = anteMap.get(ante);
       if (!postMap) {
@@ -141,8 +143,8 @@ class GreedyTokenizer {
     const { graphemes } = this;
     const len = text.length;
     let i = 0;
-    let candidate = '';
     while (i < len) {
+      let candidate = '';
       // Find a minimum length candidate
       while (!graphemes.has(candidate)) {
         if (i === len) throw new Error(`Unrecognized sequence: "${candidate}"`);
