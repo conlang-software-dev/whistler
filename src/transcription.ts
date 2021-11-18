@@ -9,10 +9,10 @@ export interface ContextualPronunciation {
   pron: CurveInput | string;
 }
 
-export interface TranscriptionSystem {
+export interface AcousticModel {
   wordBoundary?: string | RegExp;
   words?: { [key: string]: CurveInput | string };
-  namedPronunciations: { [key: string]: CurveInput };
+  namedPronunciations?: { [key: string]: CurveInput };
   graphemes: { [key: string]: ContextualPronunciation[] };
 }
 
@@ -36,7 +36,7 @@ function mapComponent(comp: SignalComponent, { center = 0, shift = 0, scale = 1 
   }
 }
 
-function mapVoice(segments: CurveInput, voice: VoiceRange): CurveInput {
+export function mapVoice(segments: CurveInput, voice: VoiceRange): CurveInput {
   return segments.map(({ a, f, run }) => ({
     f: voice.f ? mapComponent(f, voice.f) : f,
     a: voice.a ? mapComponent(a, voice.a) : a,
@@ -46,7 +46,7 @@ function mapVoice(segments: CurveInput, voice: VoiceRange): CurveInput {
 
 type WordLookup = Map<string, CurveInput>
 
-function wordsToLookup({ namedPronunciations, words }: TranscriptionSystem) : WordLookup {
+function wordsToLookup({ namedPronunciations = {}, words }: AcousticModel) : WordLookup {
   const wordMap: WordLookup = new Map();
   if (typeof words !== 'undefined') {
     for (const [word, pron] of Object.entries(words)) {
@@ -67,7 +67,7 @@ function wordsToLookup({ namedPronunciations, words }: TranscriptionSystem) : Wo
 
 type PronLookup = Map<string, Map<string, Map<string, CurveInput>>>;
 
-function graphemesToLookup({ namedPronunciations, graphemes }: TranscriptionSystem): PronLookup {
+function graphemesToLookup({ namedPronunciations = {}, graphemes }: AcousticModel): PronLookup {
   const graphMap: PronLookup = new Map();
   for (const [grapheme, contexts] of Object.entries(graphemes)) {
     const anteMap = new Map<string, Map<string, CurveInput>>();
@@ -131,7 +131,7 @@ export class Text2Formant {
   private tok: GreedyTokenizer;
   private wordBoundary?: string | RegExp;
 
-  constructor(sys: TranscriptionSystem) {
+  constructor(sys: AcousticModel) {
     this.wordBoundary = sys.wordBoundary;
     this.wordMap = wordsToLookup(sys);
     this.graphMap = graphemesToLookup(sys);

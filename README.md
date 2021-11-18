@@ -3,7 +3,7 @@ A library and command line utility for synthesizing examples of whistled speech.
 
 `npm i whistle-synthesis`
 
-This package exports two functions:
+This package exports three free functions and a class:
 
 Spline
 ------
@@ -44,7 +44,64 @@ interface WhistleSynthesisSettings {
 
 If an `output` writable `ArrayLike` is provided, the output data will be written there. If no pre-allocated `output` buffer is provided, a new `Float32Array` will be automatically allocated.
 
-Input Format
+MapVoice
+--------
+`function mapVoice(segments: CurveInput, voice: VoiceRange): CurveInput`
+
+The `mapVoice` function shifts the frequency and amplitude ranges of a pre-existing set of curve segments, based on a `VoiceRange` structure of the following form:
+
+```ts
+interface VoiceRange {
+  f?: VoiceParams; // Describes changes to the frequency channel
+  a?: VoiceParams; // Describes changes to the amplitude channel
+}
+
+interface VoiceParams {
+  // Specifies the center around which to
+  // scale the voice range Defaults to zero.
+  center?: number;
+
+  // Specifies how far to shift the center
+  // of the range. Defaults to zero.
+  shift?: number;
+
+  // Specifies how much to scale the range.
+  // Defaults to one.
+  scale?: number;
+}
+```
+
+Text2Formant
+------------
+The `Text2Formant` class encapsulates information about how to transform text into formant curves, and allows direct synthesis of interlaced frequency & amplitude formant samples or PCM samples.
+
+```ts
+class Text2Formant {
+
+    constructor(sys: AcousticModel);
+
+    // Produces a sequence of curve Segments from an input text,
+    // based on the stored acoustic model, and optionally applies
+    // a VoiceRange transformation concurrently.
+    transform(text: string, voice?: VoiceRange): Generator<Segment>;
+
+    // Generate interlaced frequency and amplitude data from text.
+    spline(args: {
+        text: string;
+        voice?: VoiceRange;
+        output?: CurveOutput;
+    }): [ArrayLike<number>, number];
+
+    // Generate PCM data directly from text.
+    synthesize({ text, voice, settings }: {
+        text: string;
+        voice?: VoiceRange;
+        settings: WhistleSynthesisSettings;
+    }): [ArrayLike<number>, number];
+}
+```
+
+Curve Input Format
 ============
 
 `CurveInput` is an array of `Segment` objects, which are defined as follows:
@@ -97,13 +154,54 @@ The `concave` and `convex` transition curve types permit switching between horiz
 
 For usage examples, see `src/test.ts`.
 
+Acoustic Models
+===============
+
+Acoustic models are structures of the following form:
+
+```ts
+interface AcousticModel {
+  // Specifies how to segment text into words.
+  wordBoundary?: string | RegExp;
+
+  // Defines named curves that may be re-used as the pronunciations
+  // of multiple different words or contextual graphemes.
+  namedPronunciations?: { [name: string]: CurveInput };
+
+  // Defines special words with idiomatic pronunciations.
+  words?: { [word: string]: CurveInput | string };
+
+  // The only required field; defines graphemes and how they
+  // are pronounced in all possible contexts.
+  graphemes: { [grapheme: string]: ContextualPronunciation[] };
+}
+
+interface ContextualPronunciation {
+  ante: string; // Specifies the preceding context grapheme (or empty string) for this pronunciation.
+  post: string; // Specifies the following context grapheme (or empty string) for this pronunciation.
+  pron: CurveInput | string; // Specifies the pronunciation to be used in this context.
+}
+```
+
+Graphemes in a model can be multiple characters long, but words will be paersed into graphemes in a strictly greedy, longest-possible-match manner, and contexts can only be one grapheme long in either direction.
+
 Command Line Interface
 ======================
 
-`whistler [--input/-i FilePath] [--output/-p FilePath] [--sampleRate/-r number]`
+`whistler curves [--input/-i FilePath] [--output/-p FilePath] [--sampleRate/-r number]`
 
-The command line utility reads in `CurveInput` data in JSON format, synthesizes PCM audio from it, and writes the results as a WAV file.
+The `curves` command reads in `CurveInput` data in JSON format, synthesizes PCM audio from it, and writes the results as a WAV file.
 
-If an input file is missing, it will read from STDIN.
-If an output file is missing, it will write to STDOUT.
-If a sample rate is missing, it will default to 44100 samples/second.
+* If an input file is missing, it will read from STDIN.
+* If an output file is missing, it will write to STDOUT.
+* If a sample rate is missing, it will default to 44100 samples/second.
+
+`whistler text [--config/-c FilePath] [--input/-i FilePath] [--output/-p FilePath] [--sampleRate/-r number] [--fc number] [--ac number] [--fs number] [--as number] [--fm number] [--am number]`
+
+The `text` command reads in an acoustic model stored in a JSON config file (note that this does not permit the use of `RegExp` objects for word boundaries) and uses it to create a WAV audio file from input text. Input, output, and sample rate defaults are as above.
+
+The additional parameters specify `VoiceRange` fields:
+
+* `fc` and `ac` specify the frequency and amplitude centers, and default to zero.
+* `fs` and `as` specify the frequency and amplitude shifts, and default to zero.
+* `fm` and `am` specify the frequency and amplitude scales (multiples), and default to one.

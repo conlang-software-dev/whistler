@@ -2,10 +2,10 @@
 import fs from 'fs';
 import { CurveInput } from './spline';
 import { synthesize } from './synthesize';
-import { VoiceRange, TranscriptionSystem, Text2Formant } from './transcription';
+import { VoiceRange, AcousticModel, Text2Formant } from './transcription';
 
 function interpText(text: string, config: string, sampleRate: number, voice: VoiceRange) {
-  let sys: TranscriptionSystem;
+  let sys: AcousticModel;
   try {
     sys = JSON.parse(fs.readFileSync(config, 'utf-8'));
   } catch (_) {
