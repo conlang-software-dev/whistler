@@ -8,7 +8,7 @@ export type CurveOutput = Writable<ArrayLike<number>>;
 export type CurveInput = Segment[];
 
 function interp({ f, a, run }: Segment, sampleRate: number, output: CurveOutput, offset: number) {
-  const samples = Math.round(run * sampleRate / 1000);
+  const samples = Math.floor(run * sampleRate / 1000);
   const [ frequency, amplitude ] = getSegmentFns(samples, f, a);
   for (let t = 0; t < samples; t++) {
     output[offset++] = frequency(t);

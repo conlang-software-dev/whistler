@@ -34,11 +34,11 @@ const [PCM ] = synthesize({
   }],
 });
 
-fs.writeFileSync('test.pcm', new Uint8Array((PCM as Float32Array).buffer));
+fs.writeFileSync('synth1.pcm', new Uint8Array((PCM as Float32Array).buffer));
 
 WavEncoder.encode({
   sampleRate,
   channelData: [PCM as Float32Array],
 }).then((buffer: ArrayBuffer) => {
-  fs.writeFileSync('test.wav', new Uint8Array(buffer));
+  fs.writeFileSync('synth1.wav', new Uint8Array(buffer));
 });

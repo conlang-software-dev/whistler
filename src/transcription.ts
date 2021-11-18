@@ -4,16 +4,20 @@ import { spline, CurveInput } from './spline';
 import { synthesize, WhistleSynthesisSettings } from './synthesize';
 
 export interface ContextualPronunciation {
-  ante: string;
-  post: string;
-  pron: CurveInput | string;
+  con: [string, string];
+  pron?: (Segment|string)[] | string;
 }
 
 export interface AcousticModel {
   wordBoundary?: string | RegExp;
   words?: { [key: string]: CurveInput | string };
-  namedPronunciations?: { [key: string]: CurveInput };
-  graphemes: { [key: string]: ContextualPronunciation[] };
+  namedPronunciations?: { [key: string]: (Segment|string)[] };
+  graphemes: { 
+    [key: string]: {
+      elsewhere?: CurveInput | string;
+      contexts: ContextualPronunciation[];
+    };
+  };
 }
 
 export interface VoiceParams {
@@ -44,49 +48,83 @@ export function mapVoice(segments: CurveInput, voice: VoiceRange): CurveInput {
   }));
 }
 
+function resolvePron(
+  name: (Segment|string)[] | string,
+  namedProns: { [key: string]: (Segment|string)[] },
+  seen = new Set<string>(),
+): CurveInput | string {
+  if (typeof name === 'string'){ 
+    if (seen.has(name)) {
+      throw new Error(`Could not resolve recursive name "${name}".`);
+    }
+
+    const pron = namedProns[name];
+    if (!pron) return name;
+    seen.add(name);
+    const ret = resolvePron(pron, namedProns, seen);
+    seen.delete(name);
+    return ret;
+  }
+
+  const ret: CurveInput = [];
+  for (const s of name) {
+    if (typeof s !== 'string') { ret.push(s); }
+    else {
+      const c = resolvePron(s, namedProns, seen);
+      if (typeof c === 'string') return c;
+      ret.push(...c);
+    }
+  }
+  return ret;
+}
+
 type WordLookup = Map<string, CurveInput>
 
 function wordsToLookup({ namedPronunciations = {}, words }: AcousticModel) : WordLookup {
   const wordMap: WordLookup = new Map();
   if (typeof words !== 'undefined') {
     for (const [word, pron] of Object.entries(words)) {
-      if (typeof pron === 'string') {
-        const curve = namedPronunciations[pron];
-        if (curve) {
-          wordMap.set(word, curve);
-        } else {
-          throw new Error(`Could find named pronunciation "${pron}" for word "${word}"`);
-        }
+      const curve = resolvePron(pron, namedPronunciations);
+      if (typeof curve === 'string') {
+        throw new Error(`Could find named pronunciation "${pron}" for word "${word}"`);
       } else {
-        wordMap.set(word, pron);
+        wordMap.set(word, curve);
       }
     }
   }
   return wordMap;
 }
 
-type PronLookup = Map<string, Map<string, Map<string, CurveInput>>>;
+type PronLookup = Map<string, { elsewhere?: CurveInput, contexts: Map<string, Map<string, CurveInput>> }>;
 
 function graphemesToLookup({ namedPronunciations = {}, graphemes }: AcousticModel): PronLookup {
   const graphMap: PronLookup = new Map();
-  for (const [grapheme, contexts] of Object.entries(graphemes)) {
+  for (let [grapheme, { elsewhere, contexts }] of Object.entries(graphemes)) {
+    if (typeof elsewhere !== 'undefined') {
+      elsewhere = resolvePron(elsewhere, namedPronunciations);
+      if (typeof elsewhere === 'string') {
+        throw new Error(`Could find named pronunciation "${elsewhere}" for grapheme "${grapheme}" in 'elsewhere' context.`);
+      }
+    }
     const anteMap = new Map<string, Map<string, CurveInput>>();
-    graphMap.set(grapheme, anteMap);
-    for (const { ante, post, pron } of contexts) {
+    graphMap.set(grapheme, { elsewhere, contexts: anteMap });
+    for (const { con: [ante, post], pron } of contexts) {
       let postMap = anteMap.get(ante);
       if (!postMap) {
         postMap = new Map<string, CurveInput>();
         anteMap.set(ante, postMap);
       }
-      if (typeof pron === 'string') {
-        const curve = namedPronunciations[pron];
-        if (curve) {
-          postMap.set(post, curve);
-        } else {
-          throw new Error(`Could find named pronunciation "${pron}" for grapheme "${grapheme}" in context "${ante}"_"${post}"`);
-        }
+      if (typeof pron === 'undefined') {
+        postMap.set(post, []);
       } else {
-        postMap.set(post, pron);
+        const curve = resolvePron(pron, namedPronunciations);
+        if (typeof curve === 'string') {
+          if (curve === pron) {
+            throw new Error(`Could not find named pronunciation "${pron}" for grapheme "${grapheme}" in context "${ante}"_"${post}".`);
+          }
+          throw new Error(`Could not resolve named pronunciation "${pron}" for grapheme "${grapheme}" in context "${ante}"_"${post}"; could not find name "${curve}".`);
+        }
+        postMap.set(post, curve);
       }
     }
   }
@@ -125,6 +163,16 @@ class GreedyTokenizer {
   }
 }
 
+function getContextualPronunciation(graphMap: PronLookup, ante: string, current: string, post: string): CurveInput {
+  const info = graphMap.get(current);
+  if (!info) { throw new Error(`Unrecognized grapheme: "${current}"`); }
+  const { elsewhere, contexts: anteMap } = info;
+  const postMap = anteMap && anteMap.get(ante);
+  const pron = (postMap && postMap.get(post)) || elsewhere;
+  if (!pron) throw new Error(`Unrecognized grapheme context: "${current}" in ${ante ? `"${ante}"` : ''}_"${post}"`);
+  return pron;
+}
+
 export class Text2Formant {
   private wordMap: WordLookup;
   private graphMap: PronLookup;
@@ -150,19 +198,13 @@ export class Text2Formant {
         let current = '';
         for (const post of tok.tokenize(chunk)) {
           if (current !== '') {
-            const anteMap = graphMap.get(current);
-            const postMap = anteMap && anteMap.get(ante);
-            const pron = postMap && postMap.get(post);
-            if (!pron) throw new Error(`Unrecognized grapheme context: "${current}" in ${ante ? `"${ante}"` : ''}_"${post}"`);
+            const pron = getContextualPronunciation(graphMap, ante, current, post);
             yield * vmap(pron);
           }
           ante = current;
           current = post;
         }
-        const anteMap = graphMap.get(current);
-        const postMap = anteMap && anteMap.get(ante);
-        const pron = postMap && postMap.get('');
-        if (!pron) throw new Error(`Unrecognized grapheme context: "${current}" in ${ante ? `"${ante}"` : ''}_`);
+        const pron = getContextualPronunciation(graphMap, ante, current, '');
         yield * vmap(pron);
       }
     }
