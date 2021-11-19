@@ -1,7 +1,24 @@
 # whistler
 A library and command line utility for synthesizing examples of whistled speech.
 
-`npm i whistle-synthesis`
+Install with `npm i whistle-synthesis`
+
+Say What Now?
+=============
+
+[Whistled speech](https://en.wikipedia.org/wiki/Whistled_language) is an alternate modality available to many language for communication over large distances. It simplifies the complexities of normal human speech down to a single frequency curve, encoding either lexical tone or major vowel formants and major frequency contour properties of consonants. While many distinctions present in normal spoken language are lost (i.e., Silbo, the whistled register of Spanish, has only 2 vowels instead of 5), whistling is still capable of conveying arbitrary complex messages.
+
+Since the function of whistled speech is to communicate over larger distances than are practical with normal speech, details of articulation and timbre (sound quality) don't matter--you can whistle however you want to whistle, in whatever way allows you be loudest, as long as you can produce the right frequency curves. Even using musical instruments like [slide whistles](https://en.wikipedia.org/wiki/Slide_whistle) is an option. This means that whistle speech synthesis can be significantly simpler than general speech synthesis. The computer doesn't have to reproduce the quality of a human voice, or a human-produced whistle, exactly--it just has to reproduce the frequency curves.
+
+So, this library gives you the tools for describing those frequency curves, and then generating actual PCM audio data from them.
+
+Why?
+===
+
+I originally wanted to build this to make it easier to develop whistled conlangs; sure, I *could* learn to whistle myself, but I'm a software engineer, so this was easier (especially as a follow-on to my previous [xenophonology](https://github.com/conlang-software-dev/xenophonology) project), and it avoids the risk of performance anxiety! But hey, now that it's done, it ought to be perfectly suitable for building synthesizers for natural whistled languages, if any adventurous linguists feel like putting in the effort to write accurate acoustic models for them.
+
+What's In It
+============
 
 This package exports three free functions and a class:
 
