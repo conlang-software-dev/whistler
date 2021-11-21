@@ -71,6 +71,7 @@ The `mapVoice` function shifts the frequency and amplitude ranges of a pre-exist
 interface VoiceRange {
   f?: VoiceParams; // Describes changes to the frequency channel
   a?: VoiceParams; // Describes changes to the amplitude channel
+  rate?: number    // Factor by which to scale the speaking rate
 }
 
 interface VoiceParams {
@@ -236,7 +237,7 @@ The `curves` command reads in `CurveInput` data in JSON format, synthesizes PCM 
 * If an output file is missing, it will write to STDOUT.
 * If a sample rate is missing, it will default to 44100 samples/second.
 
-`whistler text [--config/-c FilePath] [--input/-i FilePath] [--output/-p FilePath] [--sampleRate/-r number] [--fc number] [--ac number] [--fs number] [--as number] [--fm number] [--am number]`
+`whistler text [--config/-c FilePath] [--input/-i FilePath] [--output/-p FilePath] [--sampleRate/-r number] [--voiceRate number] [--fc number] [--ac number] [--fs number] [--as number] [--fm number] [--am number]`
 
 The `text` command reads in an acoustic model stored in a JSON config file (note that this does not permit the use of `RegExp` objects for word boundaries) and uses it to create a WAV audio file from input text. Input, output, and sample rate defaults are as above.
 
@@ -245,6 +246,7 @@ The additional parameters specify `VoiceRange` fields:
 * `fc` and `ac` specify the frequency and amplitude centers, and default to zero.
 * `fs` and `as` specify the frequency and amplitude shifts, and default to zero.
 * `fm` and `am` specify the frequency and amplitude scales (multiples), and default to one.
+* `voiceRate` specifies the factor by which to scale the speech rate.
 
 Usage Examples
 ==============

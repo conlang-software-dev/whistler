@@ -48,6 +48,7 @@ function getPCM(argv: any): ArrayLike<number> {
             shift: argv.as as number,
             scale: argv.am as number,
           },
+          rate: argv.voiceRate as number,
         };
         return interpText(data, argv.config as string, argv.sampleRate as number, voice);
       }
@@ -108,6 +109,11 @@ async function main() {
           describe: 'Path to text input file',
           type: 'string',
           default: process.stdin.fd, 
+        },
+        voiceRate: {
+          describe: 'Speaking speed',
+          type: 'number',
+          default: 1, 
         },
         fc: {
           describe: 'Center point of the frequency range',

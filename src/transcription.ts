@@ -29,6 +29,7 @@ export interface VoiceParams {
 export interface VoiceRange {
   f?: VoiceParams;
   a?: VoiceParams;
+  rate?: number;
 }
 
 function mapComponent(comp: SignalComponent, { center = 0, shift = 0, scale = 1 }: VoiceParams) {
@@ -41,10 +42,11 @@ function mapComponent(comp: SignalComponent, { center = 0, shift = 0, scale = 1 
 }
 
 export function mapVoice(segments: CurveInput, voice: VoiceRange): CurveInput {
+  const { f: vf, a: va, rate = 1 } = voice;
   return segments.map(({ a, f, run }) => ({
-    f: voice.f ? mapComponent(f, voice.f) : f,
-    a: voice.a ? mapComponent(a, voice.a) : a,
-    run,
+    f: vf ? mapComponent(f, vf) : f,
+    a: va ? mapComponent(a, va) : a,
+    run: run * rate,
   }));
 }
 
