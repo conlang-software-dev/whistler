@@ -2,7 +2,8 @@
 import fs from 'fs';
 import { CurveInput } from './spline';
 import { synthesize } from './synthesize';
-import { VoiceRange, AcousticModel, Text2Formant } from './transcription';
+import { AcousticModel, Text2Formant } from './model';
+import { VoiceRange } from './voice';
 
 function interpText(text: string, config: string, sampleRate: number, voice: VoiceRange) {
   let sys: AcousticModel;

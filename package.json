@@ -4,7 +4,9 @@
   "description": "A synthesizer for whistled speech.",
   "main": "bin/index.js",
   "types": "bin/index.d.ts",
-  "files": ["bin/*"],
+  "files": [
+    "bin/*"
+  ],
   "scripts": {
     "build": "tsc",
     "test": "mocha -r ts-node/register test/**/*-test.ts",
@@ -13,13 +15,15 @@
     "m:cli": "jsmin -o min.js bin/cli.js && move min.js bin\\cli.js",
     "m:contours": "jsmin -o min.js bin/contours.js && move min.js bin\\contours.js",
     "m:index": "jsmin -o min.js bin/index.js && move min.js bin\\index.js",
+    "m:interpreter": "jsmin -o min.js bin/interpreter.js && move min.js bin\\interpreter.js",
+    "m:model": "jsmin -o min.js bin/model.js && move min.js bin\\model.js",
     "m:segment": "jsmin -o min.js bin/segment.js && move min.js bin\\segment.js",
     "m:spline": "jsmin -o min.js bin/spline.js && move min.js bin\\spline.js",
     "m:synthesize": "jsmin -o min.js bin/synthesize.js && move min.js bin\\synthesize.js",
-    "m:transcription": "jsmin -o min.js bin/transcription.js && move min.js bin\\transcription.js",
     "m:transitions": "jsmin -o min.js bin/transitions.js && move min.js bin\\transitions.js",
-    "minify": "npm run m:cli && npm run m:contours && npm run m:index && npm run m:segment && npm run m:spline && npm run m:synthesize && npm run m:transcription && npm run m:transitions",
-    "prepare": "npm run build && npm run minify"
+    "m:voice": "jsmin -o min.js bin/voice.js && move min.js bin\\voice.js",
+    "minify": "npm run m:cli && npm run m:contours && npm run m:index && npm run m:interpreter && npm run m:model && npm run m:segment && npm run m:spline && npm run m:synthesize && npm run m:transitions && npm run m:voice",
+    "prepare": "del bin && npm run build && npm run minify"
   },
   "author": "Logan R. Kearsley",
   "license": "MIT",
@@ -44,7 +48,8 @@
     "yargs": "^17.2.1"
   },
   "dependencies": {
-    "fm-synthesis": "^1.0.3"
+    "fm-synthesis": "^1.0.3",
+    "railyard": "^2.0.0"
   },
   "bin": {
     "whistler": "bin/cli.js"

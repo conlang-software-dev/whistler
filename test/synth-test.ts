@@ -31,6 +31,18 @@ const segments: CurveInput = [{
     ey: 0.75,
   },
   run: 1000,
+}, {
+  f: {
+    type: 'transition',
+    curve: '=2 * t / pi',
+    sy: 220,
+    ey: 440,
+  },
+  a: {
+    type: 'constant',
+    y: 0.75,
+  },
+  run: 1000,
 }];
 
 describe("Curve Synthesis Test", function() {

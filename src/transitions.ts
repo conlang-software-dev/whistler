@@ -1,4 +1,16 @@
-export type TransitionCurve = 'sine' | 'arcsine' | 'concave' | 'convex';
+import { DynamicFn, InterpFn } from "./interpreter";
+
+export type TransitionCurve = 'sine' | 'arcsine' | 'concave' | 'convex' | `=${string}`;
+
+export interface ModelTransition {
+  type: 'transition';
+  curve?: TransitionCurve;
+  sy: number | string;
+  ey: number | string;
+  sclip?: number | string;
+  eclip?: number | string;
+}
+
 export interface Transition {
   type: 'transition';
   curve?: TransitionCurve;
@@ -6,6 +18,17 @@ export interface Transition {
   ey: number;
   sclip?: number;
   eclip?: number;
+}
+
+export function M2STransition(m: ModelTransition, interp: InterpFn): Transition {
+  return {
+    type: 'transition',
+    curve: m.curve,
+    sy: interp(m.sy),
+    ey: interp(m.ey),
+    sclip: typeof m.sclip === 'undefined' ? void 0 : interp(m.sclip),
+    eclip: typeof m.eclip === 'undefined' ? void 0 : interp(m.eclip),
+  };
 }
 
 const HALFPI = Math.PI / 2;
@@ -30,20 +53,24 @@ function convexDown(t: number) {
   return 2 * Math.sqrt(1 - ((t + Math.PI) * INVTWOPI) ** 2) - 1;
 }
 
-function selectTransition(sy: number, ey: number, curve: TransitionCurve) {
-  if (curve === 'sine') return Math.sin;
-  if (curve === 'arcsine') return scaledArcSine;
-  if (curve === 'concave') {
-    return sy < ey ? concaveUp : concaveDown;
+function selectTransition(sy: number, ey: number, curve: TransitionCurve, dynFn: DynamicFn) {
+  switch (curve) {
+    case 'sine': return Math.sin;
+    case 'arcsine': return scaledArcSine;
+    case 'concave': return sy < ey ? concaveUp : concaveDown;
+    case 'convex': return sy < ey ? convexUp : convexDown;
+    default: return dynFn(curve.substr(1));
   }
-  // convex
-  return sy < ey ? convexUp : convexDown;
 }
 
-export function getTransitionFn(samples: number, { sy, ey, curve = 'sine', sclip = 0, eclip = 0 }: Transition): (t: number) => number {
+export function getTransitionFn(
+  samples: number,
+  { sy, ey, curve = 'sine', sclip = 0, eclip = 0 }: Transition,
+  dynFn: DynamicFn,
+): (t: number) => number {
   if (sy === ey) return _ => sy;
 
-  const curveFn = selectTransition(sy, ey, curve);
+  const curveFn = selectTransition(sy, ey, curve, dynFn);
   const sx = sclip - HALFPI;
   const ex = HALFPI - eclip;
   const min = curveFn(sx);
@@ -51,6 +78,6 @@ export function getTransitionFn(samples: number, { sy, ey, curve = 'sine', sclip
   const domain = ex - sx;
   const range = max - min;
   const c = domain / samples;
-  const rise = (ey - sy) / (2 * range);
-  return t => rise * (curveFn(c * t + sx) - min) + sy;               
+  const rise = (ey - sy) / range;
+  return t => rise * (curveFn(c * t + sx) - min) + sy;
 }

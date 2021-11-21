@@ -1,10 +1,31 @@
+import { InterpFn } from "./interpreter";
+
 export type ContourCurve = 'sine' | 'ellipse';
+
+export interface ModelContour {
+  type: 'contour';
+  curve?: ContourCurve;
+  y: number | string;
+  a: number | string;
+  clip?: number | string;
+}
+
 export interface Contour {
   type: 'contour';
   curve?: ContourCurve;
   y: number;
   a: number;
   clip?: number;
+}
+
+export function M2SContour(m: ModelContour, interp: InterpFn): Contour {
+  return {
+    type: 'contour',
+    curve: m.curve,
+    y: interp(m.y),
+    a: interp(m.a),
+    clip: typeof m.clip === 'undefined' ? void 0 : interp(m.clip),
+  };
 }
 
 const INVPI = 1 / Math.PI;
@@ -17,7 +38,10 @@ function ellipseContour(t: number) {
   return Math.sqrt(1 - (t * INVPI) ** 2);
 }
 
-export function getContourFn(samples: number, { y, a, curve = 'sine', clip = 0 }: Contour): (t: number) => number {
+export function getContourFn(
+  samples: number,
+  { y, a, curve = 'sine', clip = 0 }: Contour,
+): (t: number) => number {
   if (a === 0) return _ => y;
 
   const curveFn = curve === 'sine' ? cosContour : ellipseContour;

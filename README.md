@@ -24,17 +24,50 @@ This package exports three free functions and a class:
 
 Spline
 ------
-`function spline(segments: CurveInput, sampleRate: number, output?: CurveOutput, offset?: number): [CurveOutput, number];`
+```ts
+interface SplineArgs {
+  // Curve segments to render into samples
+  segments: CurveInput;
+  // Samples per second
+  sampleRate: number;
+  // Optional pre-allocated output buffer
+  output?: CurveOutput
+  // Where in the output buffer to start writing; defaults to 0
+  offset?: number;
+  // Constant values that may be referenced in segment definitions.
+  constants?: { [key: string]: number; };
+  // Optional specification of how to shift the output
+  // frequency and amplitude ranges and speech rate.
+  voice?: VoiceRange;
+}
 
-The `spline` function takes in a description of a complete frequency / amplitude curve in terms of a sequence of segments of independently-controllable frequency & amplitude curves, represented in terms of segments of scaled and shifted sinusoids and elliptical arcs, and outputs a writable `ArrayLike` object with interlaced [frequency, amplitude] data, along with a number indicating the next offset to be written to. Sinusoids and ellipses are chosen as the basic components because they guarantee constant boundary slopes (either horizontal or vertical) at the boundaries, regardless of how they are scaled, thus making it easy to produce smooth transitions between segments.
+function spline(ars: SplineArgs): [CurveOutput, number]
+```
+
+The `spline` function takes in a description of a complete frequency / amplitude curve in terms of a sequence of segments of independently-controllable frequency & amplitude curves, represented in terms of segments of scaled and shifted sinusoids and elliptical arcs, and outputs a writable `ArrayLike` `CurveOutput` object with interlaced [frequency, amplitude] data, along with a number indicating the next offset to be written to in the output buffer. Sinusoids and ellipses are chosen as the basic components because they guarantee constant boundary slopes (either horizontal or vertical) at the boundaries, regardless of how they are scaled, thus making it easy to produce smooth transitions between segments.
 
 If an `output` writable `ArrayLike` is provided, the output data will be written there, beginning at the specified `offset` (which defaults to 0). An error is thrown if the provided output buffer is not large enough. If no pre-allocated `output` buffer is provided, a new `Float32Array` will be automatically allocated.
 
 Synthesize
 ----------
-`function synthesize({ segments: CurveInput, settings: WhistleSynthesisSettings }: WhistleSynthesisArgs): [ArrayLike<number>, number];`
 
-The `synthesize` function internally calls `spline`, and then passes the results to the `fm-synthesis` package to produce PCM data, and returns a writable `ArrayLike` object containing the PCM data, along with a number indicating the next offset to be written to.
+```ts
+interface WhistleSynthesisArgs {
+  // Curve segments to render into samples
+  segments: CurveInput;
+  // General audio synthesis settings
+  settings: WhistleSynthesisSettings;
+  // Optional specification of how to shift the output
+  // frequency and amplitude ranges and speech rate.
+  voice?: VoiceRange,
+  // Constant values that may be referenced in segment definitions.
+  constants?: { [key: string]: number; };
+}
+
+function synthesize(args: WhistleSynthesisArgs): [ArrayLike<number>, number]
+```
+
+The `synthesize` function internally calls `spline`, passes the results to the `fm-synthesis` package to produce PCM data, and returns a writable `ArrayLike` object containing the PCM data, along with a number indicating the next offset to be written to.
 
 The settings are as follows (determined by the inputs to `fm-synthesis`):
 ```ts
@@ -63,9 +96,130 @@ If an `output` writable `ArrayLike` is provided, the output data will be written
 
 MapVoice
 --------
-`function mapVoice(segments: CurveInput, voice: VoiceRange): CurveInput`
+```ts
+function mapVoice(segments: Iterable<Segment>, voice: VoiceRange): Generator<Segment>
+```
 
-The `mapVoice` function shifts the frequency and amplitude ranges of a pre-existing set of curve segments, based on a `VoiceRange` structure of the following form:
+The `mapVoice` function transforms a sequence of concrete curve segments (i.e., segments where all parameters are specific numbers, not formulae) into a new sequence of segments which have had their frequency and amplitude ranges and speech rate adjusted.
+
+This function is used internally by `spline` and `synthesize` to handle voice transformations, but it can be called independently if you wish.
+
+Text2Formant
+------------
+The `Text2Formant` class encapsulates information about how to transform text into formant curves, and allows direct synthesis of interlaced frequency & amplitude formant samples or PCM samples.
+
+```ts
+class Text2Formant {
+
+    constructor(sys: AcousticModel);
+
+    // Produces a sequence of ModelSegments from an input text,
+    // based on the stored acoustic model.
+    text2segments(text: string): Generator<ModelSegment>;
+    
+    // Turns a sequence of ModelSegments, which may contain
+    // interpretable expressions, into concrete Segments
+    // with all expressions replaced by numbers.
+    normalize(segments: Iterable<ModelSegment>): Generator<Segment>;
+    
+    // Produces concrete Segments directly from input text.
+    text2norm(text: string): Generator<Segment>;
+
+    // Generates interlaced frequency and amplitude data from text.
+    spline(args: {
+        text: string;
+        sampleRate: number;
+        output?: CurveOutput;
+        voice?: VoiceRange;
+    }): [ArrayLike<number>, number];
+
+    // Generate PCM data directly from text.
+    synthesize(args: {
+        text: string;
+        voice?: VoiceRange;
+        settings: WhistleSynthesisSettings;
+    }): [ArrayLike<number>, number];
+}
+```
+
+Curve Input Format
+============
+
+`CurveInput` is an array of `ModelSegment` objects, which are defined as follows:
+
+```ts
+type ModelSegment = {
+  f: ModelComponent; // Description of the frequency component.
+  a: ModelComponent; // Description of the amplitude component.
+  run: number;        // The duration of this segment in milliseconds.
+}
+
+type ModelComponent = ModelTransition | ModelContour | ModelConstant;
+
+type TransitionCurve = 'sine' | 'arcsine' | 'concave' | 'convex' | `=${string}`;
+interface ModelTransition {
+  type: 'transition';
+  curve?: TransitionCurve; // Defaults to 'sine'.
+  sy: number | string;     // Starting value of this segment.
+  ey: number | string;     // Ending value of this segment.
+  sclip?: number | string; // How much of the start of the base curve to clip off. 
+  eclip?: number | string; // How much of the end of the base curve to clip off. 
+}
+
+type ContourCurve = 'sine' | 'ellipse';
+interface ModelContour {
+  type: 'contour';
+  curve?: ContourCurve; // Defaults to 'sine'.
+  y: number | string;      // The starting and ending value of this segment.
+  a: number | string;      // The maximum amplitude by which to deviate from
+                           // the boundary value (positive or negative).
+  clip?: number | string;  // How much to clip off of the start and end
+                           // of the base curve.
+}
+
+interface ModelConstant {
+  type: 'constant';
+  y: number | string;  // The constant value to maintain during this segment.
+}
+```
+
+Each of these `Model` types have corresponding plain types (`Segment`, `SignalComponent`, `Transition`, `Contour`, and `Constant`) with identical semantics, in which all `number | string` fields are instead specified as strict `number` fields. `Model` types are converted into their corresponding concrete types during `spline`ing, when string fields are interpreted as mathematical expressions referring to predefined constants.
+
+Curve Types
+-----------
+
+By default, `sine` curve segments (and constant segments) will have slopes of zero (horizontal) at the boundaries. This makes it trivial to produce smooth transitions between segments--just make sure the y-values at adjacent segments match. Setting non-zero `clip`, `sclip`, or `eclip` values will change that, in which case you are responsible for your own discontinuities!
+
+In contrast, `ellipse` and `arcsine` curves will have vertical slopes at the boundaries, which also facilitates smooth transitions, although in this case it is up to you to ensure that the direction (up vs. down) matches across segments--unless, of course, you *want* a spike. Again, clipping will change that, resulting in arbitrary boundary slopes.
+
+An `arcsine` transition will have up-vertical slopes at both boundaries if `sy < ey`, and down-vertical slopes at both boundaries if `sy > ey`.
+
+An `ellipse` contour will have an up-vertical starting boundary and down-vertical ending boundary when `a > 0` and a down-vertical starting boundary and up-vertical ending boundary when `a < 0`.
+
+The `concave` and `convex` transition curve types permit switching between horizontal and vertical boundary slopes using elliptical quarter arcs. If `sy < ey` (i.e., we are transitioning upwards), then a `concave` curve will start horizontal and transition to up-vertical, while a `convex` start up-vertical and transition to horizontal. If `sy > ey` (i.e., we are transitioning downwards), a `concave` curve will start down-vertical and transition to horizontal, while a `convex` curve will start horizontal and transition to down-vertical.
+
+The `=${string}` curve type allows you to define arbitrary curves based on mathematical expressions. Custom curve functions will be evaluated between -pi/2 and +pi/2, and are expected to range between -1 and 1.
+
+Model Expression Language
+-------------------------
+
+Model expressions are parenthesized mathematical expressions, which can use the `+`, `-`, `/`, `*` (multiplication), `^` (exponentiation), `sin`, `cos`, and `log` (natural logarithm) operators, as well as parentheses. Expressions can use decimal numbers, as well as named constants defined by an `AcousticModel` or passed into the `spline` or `synthesize` functions, and also have acccess to the predefined constants `pi` and `e`.
+
+Expressions curve expressions also have acces to, and are expected to use, the special variable `t` (for 'time' or 'theta', whichever you prefer). For example, a strictly linear transition curve would look like this:
+
+`=2 * t / pi`
+
+Other expressions do not have access to the `t` variable, but do have four other special contextual variables:
+
+* `lf` refers to the last frequency value of the preceding segment.
+* `la` refers to the last amplitude value of the preceding segment.
+* `f_phi` refers to final phase of the frequency curve in the preceding segment.
+* `a_phi` refers to the final phase of the amplitude curve in the preceding segment.
+
+`ModelSegment`s with `run` values of 0 can be used to intentionally set `lf`, `la`, `f_phi`, and `a_phi` values for subsequent contextual segments.
+
+Voice Range Format
+==================
 
 ```ts
 interface VoiceRange {
@@ -89,88 +243,6 @@ interface VoiceParams {
 }
 ```
 
-Text2Formant
-------------
-The `Text2Formant` class encapsulates information about how to transform text into formant curves, and allows direct synthesis of interlaced frequency & amplitude formant samples or PCM samples.
-
-```ts
-class Text2Formant {
-
-    constructor(sys: AcousticModel);
-
-    // Produces a sequence of curve Segments from an input text,
-    // based on the stored acoustic model, and optionally applies
-    // a VoiceRange transformation concurrently.
-    transform(text: string, voice?: VoiceRange): Generator<Segment>;
-
-    // Generate interlaced frequency and amplitude data from text.
-    spline(args: {
-        text: string;
-        sampleRate: number,
-        voice?: VoiceRange;
-        output?: CurveOutput;
-    }): [ArrayLike<number>, number];
-
-    // Generate PCM data directly from text.
-    synthesize(args: {
-        text: string;
-        voice?: VoiceRange;
-        settings: WhistleSynthesisSettings;
-    }): [ArrayLike<number>, number];
-}
-```
-
-Curve Input Format
-============
-
-`CurveInput` is an array of `Segment` objects, which are defined as follows:
-
-```ts
-type Segment = {
-  f: SignalComponent; // Description of the frequency component.
-  a: SignalComponent; // Description of the amplitude component.
-  run: number;        // The duration of this segment in milliseconds.
-}
-
-type SignalComponent = Transition | Contour | Constant;
-
-type TransitionCurve = 'sine' | 'arcsine' | 'concave' | 'convex';
-interface Transition {
-  type: 'transition';
-  curve?: TransitionCurve; // Defaults to 'sine'.
-  sy: number;     // Starting value of this segment.
-  ey: number;     // Ending value of this segment.
-  sclip?: number; // How much of the start of the base curve to clip off. 
-  eclip?: number; // How much of the end of the base curve to clip off. 
-}
-
-type ContourCurve = 'sine' | 'ellipse';
-interface Contour {
-  type: 'contour';
-  curve?: ContourCurve; // Defaults to 'sine'.
-  y: number;      // The starting and ending value of this segment.
-  a: number;      // The maximum amplitude by which to deviate from
-                  // the boundary value (positive or negative).
-  clip?: number;  // How much to clip off of the start and end
-                  // of the base curve.
-}
-
-interface Constant {
-  type: 'constant';
-  y: number;  // The constant value to maintain during this segment.
-}
-```
-
-By default, `sine` curve segments (and constant segments) will have slopes of zero (horizontal) at the boundaries. This makes it trivial to produce smooth transitions between segments--just make sure the y-values at adjacent segments match. Setting non-zero `clip`, `sclip`, or `eclip` values will change that, in which case you are responsible for your own discontinuities!
-
-In contrast, `ellipse` and `arcsine` curves will have vertical slopes at the boundaries, which also facilitates smooth transitions, although in this case it is up to you to ensure that the direction (up vs. down) matches across segments--unless, of course, you *want* a spike. Again, clipping will change that, resulting in arbitrary boundary slopes.
-
-An `arcsine` transition will have up-vertical slopes at both boundaries if `sy < ey`, and down-vertical slopes at both boundaries if `sy > ey`.
-
-An `ellipse` contour will have an up-vertical starting boundary and down-vertical ending boundary when `a > 0` and a down-vertical starting boundary and up-vertical ending boundary when `a < 0`.
-
-The `concave` and `convex` transition curve types permit switching between horizontal and vertical boundary slopes using elliptical quarter arcs. If `sy < ey` (i.e., we are transitioning upwards), then a `concave` curve will start horizontal and transition to up-vertical, while a `convex` start up-vertical and transition to horizontal. If `sy > ey` (i.e., we are transitioning downwards), a `concave` curve will start down-vertical and transition to horizontal, while a `convex` curve will start horizontal and transition to down-vertical.
-
 Acoustic Models
 ===============
 
@@ -179,17 +251,29 @@ Acoustic models are structures of the following form:
 ```ts
 interface AcousticModel {
   // Specifies how to segment text into words.
+  // String values will treated as regex source and converted into
+  // regular expressions internally; this permits AcousticModels
+  // to be specified entirely in JSON, rather than code. 
   wordBoundary?: string | RegExp;
 
   // Defines named curves that may be re-used as the pronunciations
   // of multiple different words or contextual graphemes.
   // Named curves can themselves include other names of curves
-  // to include as sub-components, or refer to other named curves
-  // as aliases.
-  namedPronunciations?: { [name: string]: (Segment|string)[] | string };
+  // to include as sub-components, or refer to them as aliases.
+  namedPronunciations?: { [name: string]: (ModelSegment | string)[] | string };
 
   // Defines special words with idiomatic pronunciations.
-  words?: { [word: string]: CurveInput | string };
+  words?: { [word: string]: (ModelSegment | string)[] | string; };
+
+  // Defines named constants that can be used in mathematical
+  // expressions. Constants can be defined in terms of other
+  // constants, as long as there are no circular definitions.
+  constants?: { [key: string]: number | string; };
+
+  // Defines sets of graphemes which can be referred to by
+  // name in context definitions. Like named curves, classes
+  // can contain other classes as sub-components.
+  classes?: { [className: string]: string[] };
 
   // The only required field; defines graphemes and how they
   // are pronounced in all possible contexts.
@@ -199,7 +283,7 @@ interface AcousticModel {
       // a generic pronunciation to insert when
       // a context that has not been specifically
       // encoded in the model is encountered.
-      elsewhere?: (Segment|string)[] | string;
+      elsewhere?: (ModelSegment | string)[] | string;
 
       // A list of contexts in which this grapheme
       // may appear, along with its pronunciations
@@ -212,7 +296,9 @@ interface AcousticModel {
 interface ContextualPronunciation {
   // Specifies the preceding and following
   // context graphemes (or empty strings)
-  // for this pronunciation.
+  // for this pronunciation. 'pre' and 'post'
+  // may each be either an individual
+  // grapheme, or the name of a class.
   con: [pre: string, post: string];
 
   // Specifies the pronunciation for this context.
@@ -220,11 +306,11 @@ interface ContextualPronunciation {
   // grapheme is realized entirely by its effects
   // on its neighbors, and takes no time of its own
   // in this context.
-  pron?: (Segment|string)[] | string;
+  pron?: (ModelSegment | string)[] | string;
 }
 ```
 
-Graphemes in a model can be multiple characters long, but words will be paersed into graphemes in a strictly greedy, longest-possible-match manner, and contexts can only be one grapheme long in either direction.
+Graphemes in a model can be multiple characters long, but words will be parsed into graphemes in a strictly greedy, longest-possible-match manner, and contexts can only be one grapheme long in either direction.
 
 Command Line Interface
 ======================
@@ -234,7 +320,7 @@ Command Line Interface
 The `curves` command reads in `CurveInput` data in JSON format, synthesizes PCM audio from it, and writes the results as a WAV file.
 
 * If an input file is missing, it will read from STDIN.
-* If an output file is missing, it will write to STDOUT.
+* If an output file is missing, it will write to STDOUT. An `output` value `:speaker` will play the audio directly instead of producing a WAV file.
 * If a sample rate is missing, it will default to 44100 samples/second.
 
 `whistler text [--config/-c FilePath] [--input/-i FilePath] [--output/-p FilePath] [--sampleRate/-r number] [--voiceRate number] [--fc number] [--ac number] [--fs number] [--as number] [--fm number] [--am number]`
