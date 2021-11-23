@@ -3,7 +3,7 @@ import { expect } from 'chai';
 import fs from 'fs';
 import path from 'path';
 import WavEncoder from 'wav-encoder';
-import { Text2Formant, VoiceRange } from '../src';
+import { TextModel, VoiceRange } from '../src';
 import Model from './fixtures/model1';
 
 describe("Text Synthesis with Voice", function() {
@@ -11,7 +11,7 @@ describe("Text Synthesis with Voice", function() {
     .toString('utf8').split(/[\r\n]+/);
 
   const sampleRate = 44100;
-  const interpreter = new Text2Formant(Model);
+  const interpreter = new TextModel(Model);
   const voice: VoiceRange = {
     f: {
       center: 2175,

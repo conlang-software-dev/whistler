@@ -2,14 +2,14 @@ import 'mocha';
 import { expect } from 'chai';
 import fs from 'fs';
 import path from 'path';
-import { Text2Formant } from '../src';
+import { TextModel } from '../src';
 import Model from './fixtures/model1';
 
 describe("Segment Generation", function() {
   const texts = fs.readFileSync(path.join(__dirname, 'fixtures/text1.txt'))
     .toString('utf8').split(/[\r\n]+/);
 
-  const interpreter = new Text2Formant(Model);
+  const interpreter = new TextModel(Model);
 
   let i = 1;
   for (const text of texts) {

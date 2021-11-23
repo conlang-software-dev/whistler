@@ -2,7 +2,7 @@
 import fs from 'fs';
 import { CurveInput } from './spline';
 import { synthesize } from './synthesize';
-import { AcousticModel, Text2Formant } from './model';
+import { AcousticModel, TextModel } from './model';
 import { VoiceRange } from './voice';
 
 function interpText(text: string, config: string, sampleRate: number, voice: VoiceRange) {
@@ -13,7 +13,7 @@ function interpText(text: string, config: string, sampleRate: number, voice: Voi
     console.error('Error reading config file.')
     process.exit(1);
   }
-  const synth = new Text2Formant(sys);
+  const synth = new TextModel(sys);
   const [PCM ] = synth.synthesize({ text, voice, settings: { sampleRate }});
   return PCM;
 }

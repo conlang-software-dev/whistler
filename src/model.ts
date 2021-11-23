@@ -185,7 +185,7 @@ function getContextualPronunciation(graphMap: PronLookup, ante: string, current:
   return pron;
 }
 
-export class Text2Formant {
+export class TextModel {
   private wordMap: WordLookup;
   private graphMap: PronLookup;
   private tok: GreedyTokenizer;

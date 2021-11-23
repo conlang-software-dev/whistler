@@ -104,12 +104,12 @@ The `mapVoice` function transforms a sequence of concrete curve segments (i.e., 
 
 This function is used internally by `spline` and `synthesize` to handle voice transformations, but it can be called independently if you wish.
 
-Text2Formant
+TextModel
 ------------
-The `Text2Formant` class encapsulates information about how to transform text into formant curves, and allows direct synthesis of interlaced frequency & amplitude formant samples or PCM samples.
+The `TextModel` class encapsulates information about how to transform text into formant curves, and allows direct synthesis of interlaced frequency & amplitude formant samples or PCM samples.
 
 ```ts
-class Text2Formant {
+class TextModel {
 
     constructor(sys: AcousticModel);
 
