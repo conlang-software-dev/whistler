@@ -47,39 +47,29 @@ const model: AcousticModel = {
     A: [{ 
       f: { type: 'constant', y: 'H_LOCUS' },
       a: { type: 'constant', y: 1 },
-      run: 0,
     }],
-    G: [{ 
+    G: [{
       f: { type: 'constant', y: 'L_LOCUS' },
       a: { type: 'constant', y: 1 },
-      run: 0,
     }],
     I2a: [{ 
       f: {
         type: 'transition',
         curve: 'convex',
-        sy: 'lf',
         ey: 'A_LOCUS',
       },
-      a: { type: 'constant', y: 1 },
       run: 200,
     }],
     I2i: [{ 
       f: {
         type: 'transition',
         curve: 'convex',
-        sy: 'lf',
         ey: 'I_LOCUS',
       },
-      a: { type: 'constant', y: 1 },
       run: 200,
     }],
     K2a: [{ 
-      f: {
-        type: 'transition',
-        sy: 'lf',
-        ey: 'A_LOCUS',
-      },
+      f: { type: 'transition', ey: 'A_LOCUS' },
       a: {
         type: 'transition',
         sy: 0, ey: 1,
@@ -87,11 +77,7 @@ const model: AcousticModel = {
       run: 250,
     }],
     K2i: [{ 
-      f: {
-        type: 'transition',
-        sy: 'lf',
-        ey: 'I_LOCUS',
-      },
+      f: { type: 'transition', ey: 'I_LOCUS' },
       a: {
         type: 'transition',
         sy: 0, ey: 1,
@@ -102,7 +88,6 @@ const model: AcousticModel = {
       f: {
         type: 'transition',
         curve: 'convex',
-        sy: 'lf',
         ey: 'A_LOCUS',
       },
       a: {
@@ -115,7 +100,6 @@ const model: AcousticModel = {
       f: {
         type: 'transition',
         curve: 'convex',
-        sy: 'lf',
         ey: 'I_LOCUS',
       },
       a: {
@@ -131,25 +115,16 @@ const model: AcousticModel = {
       f: {
         type: 'transition',
         curve: 'convex',
-        sy: 'lf',
         ey: 'H_LOCUS',
       },
-      a: { type: 'constant', y: 1 },
       run: 200,
     }],
     // d
     d2a: ['A', 'K2a'],
     d2i: ['A', 'K2i'],
     v2d: [{ 
-      f: {
-        type: 'transition',
-        sy: 'lf',
-        ey: 'H_LOCUS',
-      },
-      a: {
-        type: 'transition',
-        sy: 1, ey: 0,
-      },
+      f: { type: 'transition', ey: 'H_LOCUS' },
+      a: { type: 'transition', ey: 0 },
       run: 250,
     }],
     // n
@@ -159,22 +134,14 @@ const model: AcousticModel = {
       f: {
         type: 'transition',
         curve: 'convex',
-        sy: 'lf',
         ey: 'H_LOCUS',
       },
-      a: {
-        type: 'transition',
-        sy: 1, ey: 0,
-      },
+      a: { type: 'transition', ey: 0 },
       run: 200,
     }],
     
     // k
-    v2k: [{
-      f: { type: 'constant', y: 'lf' },
-      a: { type: 'constant', y: 1 },
-      run: 166,
-    }, 'silence'],
+    v2k: [{ run: 166 }, 'silence'],
     k2a: ['silence', {
       f: { type: 'constant', y: 'A_LOCUS' },
       a: { type: 'constant', y: 1 },
@@ -187,11 +154,7 @@ const model: AcousticModel = {
     }],
     // g
     v2g: [{
-      f: { type: 'constant', y: 'lf' },
-      a: {
-        type: 'transition',
-        sy: 1, ey: 0,
-      },
+      a: { type: 'transition', ey: 0 },
       run: 250,
     }],
     g2a: [{
@@ -212,11 +175,7 @@ const model: AcousticModel = {
     }],
     // ng
     v2ng: [{
-      f: { type: 'constant', y: 'lf' },
-      a: {
-        type: 'transition',
-        sy: 1, ey: 0,
-      },
+      a: { type: 'transition', ey: 0 },
       run: 200,
     }],
     ng2a: [{
@@ -243,25 +202,16 @@ const model: AcousticModel = {
       f: {
         type: 'transition',
         curve: 'convex',
-        sy: 'lf',
         ey: 'L_LOCUS',
       },
-      a: { type: 'constant', y: 1 },
       run: 200,
     }],
     // b
     b2a: ['G', 'K2a'],
     b2i: ['G', 'K2i'],
     v2b: [{ 
-      f: {
-        type: 'transition',
-        sy: 'lf',
-        ey: 'L_LOCUS',
-      },
-      a: {
-        type: 'transition',
-        sy: 1, ey: 0,
-      },
+      f: { type: 'transition', ey: 'L_LOCUS' },
+      a: { type: 'transition', ey: 0 },
       run: 250,
     }],
     // m
@@ -271,13 +221,9 @@ const model: AcousticModel = {
       f: {
         type: 'transition',
         curve: 'convex',
-        sy: 'lf',
         ey: 'L_LOCUS',
       },
-      a: {
-        type: 'transition',
-        sy: 1, ey: 0,
-      },
+      a: { type: 'transition', ey: 0 },
       run: 200,
     }],
   },

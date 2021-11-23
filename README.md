@@ -149,9 +149,19 @@ Curve Input Format
 
 ```ts
 type ModelSegment = {
-  f: ModelComponent; // Description of the frequency component.
-  a: ModelComponent; // Description of the amplitude component.
-  run: number;        // The duration of this segment in milliseconds.
+  // Description of the frequency component.
+  // Defaults to a constant continuing the
+  // previous segment's final value.
+  f?: ModelComponent;
+
+  // Description of the amplitude component.
+  // Defaults to a constant continuing the
+  // previous segment's final value.
+  a?: ModelComponent;
+
+  // The duration of this segment in milliseconds.
+  // Defaults to zero.
+  run?: number;       
 }
 
 type ModelComponent = ModelTransition | ModelContour | ModelConstant;
@@ -160,26 +170,46 @@ type TransitionCurve = 'sine' | 'arcsine' | 'concave' | 'convex' | `=${string}`;
 interface ModelTransition {
   type: 'transition';
   curve?: TransitionCurve; // Defaults to 'sine'.
-  sy: number | string;     // Starting value of this segment.
-  ey: number | string;     // Ending value of this segment.
-  sclip?: number | string; // How much of the start of the base curve to clip off. 
-  eclip?: number | string; // How much of the end of the base curve to clip off. 
+  
+  // Starting value of this segment.
+  // Defaults to previous segment's final value.
+  sy?: number | string;
+  
+  // Ending value of this segment.
+  // Defaults to previous segment's final value.  
+  ey?: number | string;
+  
+  // How much of the start of the base curve to clip off. 
+  sclip?: number | string;
+
+  // How much of the start of the base curve to clip off.
+  eclip?: number | string;
 }
 
 type ContourCurve = 'sine' | 'ellipse';
 interface ModelContour {
   type: 'contour';
   curve?: ContourCurve; // Defaults to 'sine'.
-  y: number | string;      // The starting and ending value of this segment.
-  a: number | string;      // The maximum amplitude by which to deviate from
-                           // the boundary value (positive or negative).
-  clip?: number | string;  // How much to clip off of the start and end
-                           // of the base curve.
+
+  // The starting and ending value of this segment.
+  // Defaults to previous segment's final value.
+  y?: number | string;      
+  
+  // The maximum amplitude by which to deviate from
+  // the boundary value (positive or negative).
+  a: number | string;
+
+  // How much to clip off of the start
+  // and end of the base curve.
+  clip?: number | string;  
+                           
 }
 
 interface ModelConstant {
   type: 'constant';
-  y: number | string;  // The constant value to maintain during this segment.
+  // The constant value to maintain during this segment.
+  // Defaults to the previous segment's final value.
+  y?: number | string;
 }
 ```
 

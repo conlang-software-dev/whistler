@@ -5,8 +5,8 @@ export type TransitionCurve = 'sine' | 'arcsine' | 'concave' | 'convex' | `=${st
 export interface ModelTransition {
   type: 'transition';
   curve?: TransitionCurve;
-  sy: number | string;
-  ey: number | string;
+  sy?: number | string;
+  ey?: number | string;
   sclip?: number | string;
   eclip?: number | string;
 }
@@ -20,12 +20,12 @@ export interface Transition {
   eclip?: number;
 }
 
-export function M2STransition(m: ModelTransition, interp: InterpFn): Transition {
+export function M2STransition(m: ModelTransition, last: string, interp: InterpFn): Transition {
   return {
     type: 'transition',
     curve: m.curve,
-    sy: interp(m.sy),
-    ey: interp(m.ey),
+    sy: interp(typeof m.sy === 'undefined' ? last : m.sy),
+    ey: interp(typeof m.ey === 'undefined' ? last : m.ey),
     sclip: typeof m.sclip === 'undefined' ? void 0 : interp(m.sclip),
     eclip: typeof m.eclip === 'undefined' ? void 0 : interp(m.eclip),
   };

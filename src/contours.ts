@@ -5,7 +5,7 @@ export type ContourCurve = 'sine' | 'ellipse';
 export interface ModelContour {
   type: 'contour';
   curve?: ContourCurve;
-  y: number | string;
+  y?: number | string;
   a: number | string;
   clip?: number | string;
 }
@@ -18,11 +18,11 @@ export interface Contour {
   clip?: number;
 }
 
-export function M2SContour(m: ModelContour, interp: InterpFn): Contour {
+export function M2SContour(m: ModelContour, last: string, interp: InterpFn): Contour {
   return {
     type: 'contour',
     curve: m.curve,
-    y: interp(m.y),
+    y: interp(typeof m.y === 'undefined' ? last : m.y),
     a: interp(m.a),
     clip: typeof m.clip === 'undefined' ? void 0 : interp(m.clip),
   };

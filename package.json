@@ -23,7 +23,7 @@
     "m:transitions": "jsmin -o min.js bin/transitions.js && move min.js bin\\transitions.js",
     "m:voice": "jsmin -o min.js bin/voice.js && move min.js bin\\voice.js",
     "minify": "npm run m:cli && npm run m:contours && npm run m:index && npm run m:interpreter && npm run m:model && npm run m:segment && npm run m:spline && npm run m:synthesize && npm run m:transitions && npm run m:voice",
-    "prepare": "del bin && npm run build && npm run minify"
+    "prepare": "npm run build && npm run minify"
   },
   "author": "Logan R. Kearsley",
   "license": "MIT",

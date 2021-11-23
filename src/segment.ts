@@ -6,7 +6,7 @@ export { Transition, TransitionCurve, Contour, ContourCurve }
 
 export interface ModelConstant {
   type: 'constant';
-  y: number | string;
+  y?: number | string;
 }
 
 export interface Constant {
@@ -14,28 +14,28 @@ export interface Constant {
   y: number;
 }
 
-function M2SConstant(m: ModelConstant, interp: InterpFn): Constant {
+function M2SConstant(m: ModelConstant, last: string, interp: InterpFn): Constant {
   return {
     type: 'constant',
-    y: interp(m.y),
+    y: interp(typeof m.y === 'undefined' ? last : m.y),
   };
 }
 
 export type ModelComponent = ModelTransition | ModelContour | ModelConstant;
 export type SignalComponent = Transition | Contour | Constant;
 
-function M2SComponent(m: ModelComponent, interp: InterpFn): SignalComponent {
+function M2SComponent(m: ModelComponent, last: string, interp: InterpFn): SignalComponent {
   switch (m.type) {
-    case 'transition': return M2STransition(m, interp);
-    case 'contour': return M2SContour(m, interp);
-    case 'constant': return M2SConstant(m, interp);
+    case 'transition': return M2STransition(m, last, interp);
+    case 'contour': return M2SContour(m, last, interp);
+    case 'constant': return M2SConstant(m, last, interp);
   }
 }
 
 export type ModelSegment = {
-  f: ModelComponent;
-  a: ModelComponent;
-  run: number;
+  f?: ModelComponent;
+  a?: ModelComponent;
+  run?: number;
 }
 
 export type Segment = {
@@ -46,9 +46,9 @@ export type Segment = {
 
 function Model2Segment(m: ModelSegment, interp: InterpFn): Segment {
   return {
-    f: M2SComponent(m.f, interp),
-    a: M2SComponent(m.a, interp),
-    run: m.run,
+    f: M2SComponent(m.f || { type: 'constant', y: 'lf' }, 'lf', interp),
+    a: M2SComponent(m.a || { type: 'constant', y: 'la' }, 'la', interp),
+    run: m.run || 0,
   }
 }
 
