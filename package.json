@@ -1,6 +1,6 @@
 {
   "name": "whistle-synthesis",
-  "version": "3.0.0",
+  "version": "3.0.1",
   "description": "A synthesizer for whistled speech.",
   "main": "bin/index.js",
   "types": "bin/index.d.ts",
@@ -49,7 +49,7 @@
   },
   "dependencies": {
     "fm-synthesis": "^1.0.3",
-    "railyard": "^2.0.0"
+    "railyard": "^2.5.2"
   },
   "bin": {
     "whistler": "bin/cli.js"

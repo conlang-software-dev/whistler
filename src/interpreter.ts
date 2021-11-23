@@ -1,4 +1,4 @@
-import { Railyard } from 'railyard';
+import { ADD, DIV, MUL, NEG, Railyard, SUB } from 'railyard';
 
 const lexerRules = [
   /([a-zA-Z_]\w*)/g,
@@ -26,15 +26,15 @@ function * tokenize(code: string) {
 
 function getParser() {
   return new Railyard()
-    .register({ type: 'infix', name: '^', precedence: 9, associativity: "right", fn: Math.pow as any })
-    .register({ type: 'infix', name: '*', precedence: 8, associativity: "left", fn: (a: any, b: any) => a * b })
-    .register({ type: 'infix', name: '/', precedence: 8, associativity: "left", fn: (a: any, b: any) => a / b })
-    .register({ type: 'infix', name: '+', precedence: 8, associativity: "left", fn: (a: any, b: any) => a + b })
-    .register({ type: 'infix', name: '-', precedence: 8, associativity: "left", fn: (a: any, b: any) => a - b })
-    .register({ type: 'function', name: '-', arity: 1, fn: (a: any) => -a })
-    .register({ type: 'function', name: 'sin', arity: 1, fn: Math.sin as any })
-    .register({ type: 'function', name: 'log', arity: 1, fn: Math.log as any })
-    .register({ type: 'function', name: 'cos', arity: 1, fn: Math.cos as any });
+    .register({ type: 'infix', name: '^', precedence: 9, associativity: "right", fn: Math.pow })
+    .register({ type: 'infix', name: '*', precedence: 8, associativity: "left", fn: MUL })
+    .register({ type: 'infix', name: '/', precedence: 8, associativity: "left", fn: DIV })
+    .register({ type: 'infix', name: '+', precedence: 8, associativity: "left", fn: ADD })
+    .register({ type: 'infix', name: '-', precedence: 8, associativity: "left", fn: SUB })
+    .register({ type: 'function', name: '-', arity: 1, fn: NEG })
+    .register({ type: 'function', name: 'sin', arity: 1, fn: Math.sin })
+    .register({ type: 'function', name: 'log', arity: 1, fn: Math.log })
+    .register({ type: 'function', name: 'cos', arity: 1, fn: Math.cos });
 }
 
 function getFree(expr: string[], parser: Railyard) {
@@ -45,8 +45,11 @@ function getFree(expr: string[], parser: Railyard) {
   return vars;
 }
 
-function resolveConstants(constants: { [key: string]: number | string }, parser: Railyard) {
-  const vals: { [key: string]: number } = { pi: Math.PI, e: Math.E };
+function resolveConstants(
+  constants: { [key: string]: number | string },
+  vals: { [key: string]: number },
+  parser: Railyard,
+) {
   let deps: [string, string[], string[]][] = [];
   for (const [key, expr] of Object.entries(constants)) {
     if (typeof expr === 'number') {
@@ -71,8 +74,6 @@ function resolveConstants(constants: { [key: string]: number | string }, parser:
     }
     deps = ndeps;
   }
-
-  return vals;
 }
 
 export type InterpFn = (f: number | string) => number;
@@ -83,8 +84,10 @@ export function getInterpreter(
   constants: { [key: string]: number | string } = {},
 ): [InterpArgs, InterpFn, DynamicFn] {
   const parser = getParser();
-  const vals = resolveConstants(constants, parser);
+
+  const vals: { [key: string]: number } = { pi: Math.PI, e: Math.E };
   let args: { [key: string]: number } = {};
+
   parser.lookup(s => {
     let val = parseFloat(s);
     if (isNaN(val)) { val = vals[s]; }
@@ -94,6 +97,8 @@ export function getInterpreter(
     }
     return val;
   });
+
+  resolveConstants(constants, vals, parser);
 
   const argFn = (a: { [key: string]: number }) => { args = a; };
   const interpFn = (f: number | string) => {
@@ -107,11 +112,14 @@ export function getInterpreter(
   };
 
   const dynFn = (expr: string) => {
-    const toks = [...tokenize(expr)];
+    const { fn, free: { vars } } = parser.compile(tokenize(expr));
+    vars.delete('t');
+    if (vars.size > 0) {
+      throw new Error(`Invalid formula "${expr}"`);
+    }
     return (t: number) => {
-      args = { t }
       try {
-        return parser.interpret(toks) as number;
+        return fn({ t }) as number;
       } catch (_) {
         throw new Error(`Invalid formula "${expr}"`);
       }
