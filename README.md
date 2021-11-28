@@ -233,7 +233,7 @@ The `=${string}` curve type allows you to define arbitrary curves based on mathe
 Model Expression Language
 -------------------------
 
-Model expressions are parenthesized mathematical expressions, which can use the `+`, `-`, `/`, `*` (multiplication), `^` (exponentiation), `sin`, `cos`, and `log` (natural logarithm) operators, as well as parentheses. Expressions can use decimal numbers, as well as named constants defined by an `AcousticModel` or passed into the `spline` or `synthesize` functions, and also have acccess to the predefined constants `pi` and `e`.
+Model expressions are parenthesized mathematical expressions. Expressions can use decimal numbers, as well as named constants defined by an `AcousticModel` or passed into the `spline` or `synthesize` functions, and also have acccess to the predefined constants `pi` and `e`.
 
 Expressions curve expressions also have acces to, and are expected to use, the special variable `t` (for 'time' or 'theta', whichever you prefer). For example, a strictly linear transition curve would look like this:
 
@@ -247,6 +247,14 @@ Other expressions do not have access to the `t` variable, but do have four other
 * `a_phi` refers to the final phase of the amplitude curve in the preceding segment.
 
 `ModelSegment`s with `run` values of 0 can be used to intentionally set `lf`, `la`, `f_phi`, and `a_phi` values for subsequent contextual segments.
+
+### Operators & Functions
+Expressions can use all of the basic infix operators (`+`, `-`, `/`, `*` (multiplication), and `^` (exponentiation)), wich have the usual precedence order, as well as parentheses for grouping terms. Additionally, there are the following built-in functions:
+
+* `sin(x)`
+* `cos(x)`
+* `log(x)` -- natural logarithm
+* `lr(x, a1, b1, a2, b2)` -- linear range; maps a value `x` from the interval [`a1`, `b1`] to the new interval [`a2`, `b2`].
 
 Voice Range Format
 ==================

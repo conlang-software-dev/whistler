@@ -24,6 +24,10 @@ function * tokenize(code: string) {
   }
 }
 
+function linear_range(x: number, a1: number, b1: number, a2: number, b2: number) {
+  return a2 + (b2 - a2) * (x - a1) / (b1 - a1);
+}
+
 function getParser() {
   return new Railyard()
     .register({ type: 'infix', name: '^', precedence: 9, associativity: "right", fn: Math.pow })
@@ -34,7 +38,8 @@ function getParser() {
     .register({ type: 'function', name: '-', arity: 1, fn: NEG })
     .register({ type: 'function', name: 'sin', arity: 1, fn: Math.sin })
     .register({ type: 'function', name: 'log', arity: 1, fn: Math.log })
-    .register({ type: 'function', name: 'cos', arity: 1, fn: Math.cos });
+    .register({ type: 'function', name: 'cos', arity: 1, fn: Math.cos })
+    .register({ type: 'function', name: 'lr', arity: 5, fn: linear_range });
 }
 
 function getFree(expr: string[], parser: Railyard) {
