@@ -326,7 +326,7 @@ interface AcousticModel {
       // A list of contexts in which this grapheme
       // may appear, along with its pronunciations
       // in those contexts.
-      contexts: ContextualPronunciation[];
+      contexts?: ContextualPronunciation[];
     };
   };
 }

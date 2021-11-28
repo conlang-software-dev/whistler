@@ -19,6 +19,9 @@ export interface AcousticModel {
     [key: string]: {
       elsewhere?: (ModelSegment|string)[] | string;
       contexts: ContextualPronunciation[];
+    } | {
+      elsewhere: (ModelSegment|string)[] | string;
+      contexts?: ContextualPronunciation[];
     };
   };
 }
@@ -114,6 +117,7 @@ function graphemesToLookup({ namedPronunciations = {}, classes = {}, graphemes }
       elsewhere: elsePron,
       contexts: anteMap,
     });
+    if (typeof contexts === 'undefined') { continue; }
     for (const { con: [anteClass, postClass], pron } of contexts) {
       const anteMembers = classes[anteClass] || [anteClass];
       const postMembers = classes[postClass] || [postClass];
