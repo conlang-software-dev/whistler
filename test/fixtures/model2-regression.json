@@ -1,0 +1,82 @@
+{
+  "wordBoundary": " ",
+  "constants": {
+    "STEP": 150,
+    "CTIME": 75,
+    "VTIME": 300,
+    "BASE": 1000
+  },
+  "classes": {
+    "?": ["i","o","'i","'o","h"]
+  },
+  "namedPronunciations": {
+    "break": [
+      { "a": { "type": "constant", "y": 0 }, "run": "CTIME"},
+      { "a": { "type": "constant", "y": 1 } }
+    ],
+    "start": [
+      { "a": { "type": "constant", "y": 0 }, "run": "VTIME"},
+      { "a": { "type": "constant", "y": 1 } }
+    ],
+    "ref": [
+      { "f": { "type": "constant", "y": "BASE" }, "run": "CTIME" }
+    ],
+    "level": [
+      "break",
+      { "f": { "type": "constant" }, "run": "VTIME" }
+    ],
+    "up_slide": [
+      { "f": { "type": "transition", "sy": "BASE", "ey": "BASE + STEP" }, "run": "CTIME" },
+      { "f": { "type": "transition", "ey": "BASE" }, "run": "VTIME" }
+    ],
+    "dn_slide": [
+      { "f": { "type": "transition", "sy": "BASE", "ey": "BASE - STEP" }, "run": "CTIME" },
+      { "f": { "type": "transition", "ey": "BASE" }, "run": "VTIME" }
+    ],
+    "up_break": [
+      "break",
+      { "f": { "type": "transition", "sy": "BASE + STEP", "ey": "BASE" }, "run": "VTIME" }
+    ],
+    "dn_break": [
+      "break",
+      { "f": { "type": "transition", "sy": "BASE - STEP", "ey": "BASE" }, "run": "VTIME" }
+    ]
+  },
+  "graphemes": {
+    "i": {
+      "contexts": [{
+        "con": ["", "?"],
+        "pron": ["start", "up_slide"]
+      }],
+      "elsewhere": ["up_slide"]
+    },
+    "'i": {
+      "contexts": [{
+        "con": ["", "?"],
+        "pron": ["start", "ref", "up_break"]
+      }],
+      "elsewhere": ["up_break"]
+    },
+    "o": {
+      "contexts": [{
+        "con": ["", "?"],
+        "pron": ["start", "dn_slide"]
+      }],
+      "elsewhere": ["dn_slide"]
+    },
+    "'o": {
+      "contexts": [{
+        "con": ["", "?"],
+        "pron": ["start", "ref", "dn_break"]
+      }],
+      "elsewhere": ["dn_break"]
+    },
+    "h": {
+      "contexts": [{
+        "con": ["", "?"],
+        "pron": ["start", "ref", "level"]
+      }],
+      "elsewhere": ["level"]
+    }
+  }
+}
