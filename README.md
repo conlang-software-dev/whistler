@@ -161,7 +161,7 @@ type ModelSegment = {
 
   // The duration of this segment in milliseconds.
   // Defaults to zero.
-  run?: number;       
+  run?: number | string;       
 }
 
 type ModelComponent = ModelTransition | ModelContour | ModelConstant;

@@ -35,7 +35,7 @@ function M2SComponent(m: ModelComponent, last: string, interp: InterpFn): Signal
 export type ModelSegment = {
   f?: ModelComponent;
   a?: ModelComponent;
-  run?: number;
+  run?: number | string;
 }
 
 export type Segment = {
@@ -48,7 +48,7 @@ function Model2Segment(m: ModelSegment, interp: InterpFn): Segment {
   return {
     f: M2SComponent(m.f || { type: 'constant', y: 'lf' }, 'lf', interp),
     a: M2SComponent(m.a || { type: 'constant', y: 'la' }, 'la', interp),
-    run: m.run || 0,
+    run: m.run ? interp(m.run) : 0,
   }
 }
 
