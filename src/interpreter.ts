@@ -4,6 +4,7 @@ const lexerRules = [
   /([a-zA-Z_]\w*)/g,
   /(\d+(\.\d*)?)/g,
   /([+*^/()-])/g,
+  /(,)/g,
   /\s+/g,
 ];
 
@@ -98,6 +99,7 @@ export function getInterpreter(
     if (isNaN(val)) { val = vals[s]; }
     if (typeof val !== 'number') { val = args[s]; }
     if (typeof val !== 'number') {
+      console.log(`Unknown constant ${s}`);
       throw new Error(`Unknown constant ${s}`);
     }
     return val;
@@ -111,8 +113,9 @@ export function getInterpreter(
     
     try {
       return parser.interpret(tokenize(f)) as number;
-    } catch (_) {
-      throw new Error(`Invalid formula "${f}"`);
+    } catch (e) {
+      throw e;
+      //throw new Error(`Invalid formula "${f}"`);
     }
   };
 

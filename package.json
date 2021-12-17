@@ -1,6 +1,6 @@
 {
   "name": "whistle-synthesis",
-  "version": "3.0.2",
+  "version": "3.0.4",
   "description": "A synthesizer for whistled speech.",
   "main": "bin/index.js",
   "types": "bin/index.d.ts",
