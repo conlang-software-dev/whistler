@@ -375,4 +375,6 @@ The additional parameters specify `VoiceRange` fields:
 Usage Examples
 ==============
 
-See the `/test` folder for basic usage examples. `/test/synth-test.ts` has a short example of manually-constructed `CurveInput` and call to the `synthesize` function. `/test/fixtures/model1.ts` contains a (not terribly realistic) example `AcousticModel`, which is used to synthesize audio from text in `/test/text-test.ts`.
+See the [/test](test) folder for basic usage examples. [/test/synth-test.ts](test/synth-test.ts) has a short example of manually-constructed `CurveInput` and call to the `synthesize` function. [/test/fixtures/model1.ts](test/fixtures/model1.ts) contains a (not terribly realistic) example `AcousticModel`, which is used to synthesize audio from text in [/test/text-test.ts](test/fixtures/model1.ts). There is a sample JSON model in [/test/fixtures/model2.json](test/fixtures/model2.json) and a second TypeScript model example in [/test/fixtures/model3.ts](test/fixtures/model3.ts).
+
+For more practical examples, see [toki suli](https://github.com/gliese1337/toki-suli), the whistled Toki Pona synthesizer, which has models for the [suli](https://github.com/gliese1337/toki-suli/blob/main/src/suli.ts) and [waso](https://github.com/gliese1337/toki-suli/blob/main/src/waso.ts) whistling modes; and the [Tjugem conlang synthesizer](https://github.com/gliese1337/tjugem).
